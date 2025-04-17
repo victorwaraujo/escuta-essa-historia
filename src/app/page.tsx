@@ -1,13 +1,84 @@
+"use client";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-
 import NavBar from "../components/NavBar/NavBar";
 import HeroCarousel from "../components/Hero/HeroBanner";
 import EpisodeCard from "../components/Episodes/EpisodeCards";
 import { Mic, MessageSquareText } from "lucide-react";
-import { FaEnvelope, FaInstagram } from "react-icons/fa";
+import { FaEnvelope, FaInstagram, FaSpotify, FaYoutube, FaAmazon, FaDeezer, FaSoundcloud } from "react-icons/fa";
 
+interface Episodio {
+  id: number;
+  title: string;
+  date: string;
+  tags: string[];
+  audioUrl: string;
+  imageUrl: string;
+  duration: string;
+  participants: string[];
+  spotifyUrl?: string;
+  youtubeUrl?: string;
+  amazonUrl?: string;
+  deezerUrl?: string;
+  soundcloudUrl?: string;
+}
+
+interface Mensagem {
+  id: number;
+  autor: string;
+  conteudo: string;
+  data: string;
+}
 
 const HomePage = () => {
+  const [episodios, setEpisodios] = useState<Episodio[]>([]);
+  const [mensagens, setMensagens] = useState<Mensagem[]>([]);
+  const [boxHeight, setBoxHeight] = useState<number | null>(null);
+  const episodioColRef = useRef<HTMLDivElement | null>(null);
+
+  const [showLinks, setShowLinks] = useState(false);
+  const hideTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      const epRes = await fetch("/api/episodes?limit=2");
+      const epData = await epRes.json();
+      setEpisodios(epData);
+
+      const msgRes = await fetch("/api/messages?limit=2");
+      const msgData = await msgRes.json();
+      setMensagens(msgData);
+    }
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(() => {
+      if (episodioColRef.current) {
+        setBoxHeight(episodioColRef.current.offsetHeight);
+      }
+    });
+
+    if (episodioColRef.current) {
+      resizeObserver.observe(episodioColRef.current);
+    }
+
+    return () => resizeObserver.disconnect();
+  }, [episodios]);
+
+  const handleClick = () => {
+    setShowLinks(true);
+
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current);
+    }
+
+    hideTimerRef.current = setTimeout(() => {
+      setShowLinks(false);
+    }, 5000);
+  };
+
   return (
     <main className="text-gray-900 bg-orange-50 min-h-screen">
       <NavBar />
@@ -19,59 +90,47 @@ const HomePage = () => {
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Coluna 1-6: Episódios */}
-          <div className="lg:col-span-6 flex flex-col gap-6">
-            <EpisodeCard
-              title="Escuta esse Tripé: Ensino, Pesquisa e Extensão"
-              date="15 de abril de 2024"
-              tags={["Pesquisa", "Extensão"]}
-              audioUrl="/audios/episodio1.mp3"
-              imageUrl="/images/ep2.jpg"
-              duration= "string"
-              participants= {["string"]}
-              spotifyUrl="https://open.spotify.com/episode/0eaE0sWbMVaAldfnYYmqwp"
-              youtubeUrl="https://youtube.com"
-              amazonUrl="https://music.amazon.com"
-              deezerUrl=""
-              soundcloudUrl=""
-            />
-
-            <EpisodeCard
-              title="Lugar de Quem? Paisagens em torno de Exus e Caboclos"
-              date="9 de abril de 2024"
-              tags={["HistóriaDoBrasil", "RegiaoNordeste"]}
-              audioUrl="/audios/episodio2.mp3"
-              imageUrl="/images/ep1.jpg"
-              duration= "string"
-              participants= {["string"]}
-              spotifyUrl="https://open.spotify.com"
-              youtubeUrl=""
-              amazonUrl=""
-              deezerUrl=""
-              soundcloudUrl=""
-            />
+          {/* Episódios */}
+          <div ref={episodioColRef} className="lg:col-span-6 flex flex-col gap-6">
+            {episodios.map((ep) => (
+              <EpisodeCard key={ep.id} {...ep} />
+            ))}
           </div>
 
-          {/* Coluna 7-9: Mensagens */}
-          <div className="lg:col-span-3 bg-pink-50 rounded-2xl p-6 text-center text-pink-800 shadow border border-pink-200 flex flex-col justify-between h-full">
-            <h3 className="text-2xl font- font-display text-pink-600 mb-4">Mensagens</h3>
-            <p className="italic mb-4">
-              “O podcast me faz refletir sobre temas que nunca imaginei. Obrigado por tanto!”
-            </p>
-            <p className="italic mb-4">
-              “A maneira como vocês tratam temas delicados é incrível. Continuem!”
-            </p>
+          {/* Mensagens */}
+          <div
+            className="lg:col-span-3 bg-pink-50 rounded-2xl p-6 text-center text-pink-800 shadow border border-pink-200 flex flex-col justify-between max-h-[400px] sm:max-h-full overflow-hidden"
+            style={{ height: boxHeight ? `${boxHeight}px` : "auto" }}
+          >
+            <h3 className="text-2xl font-display text-pink-600 mb-4">Mensagens</h3>
+
+            <div className="relative flex-1 overflow-hidden">
+              <div className="absolute inset-0 overflow-y-auto px-2 pt-4">
+                <div className="flex flex-col justify-center min-h-full">
+                  {mensagens.map((msg) => (
+                    <div key={msg.id} className="italic mb-4">
+                      <p>“{msg.conteudo}”</p>
+                      <p className="text-sm text-gray-600 mt-1">- {msg.autor}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             <Link
               href="/mensagens"
-              className="inline-block bg-white border border-pink-500 text-pink-600 hover:bg-pink-100 px-4 py-1.5 rounded-full font-medium text-sm sm:text-base transition hover:shadow-md"
+              className="inline-block bg-white border border-pink-500 text-pink-600 hover:bg-pink-100 px-4 py-1.5 rounded-full font-medium text-sm sm:text-base transition hover:shadow-md mt-4"
             >
               <MessageSquareText size={16} className="inline mr-2" />
               Mais mensagens
             </Link>
           </div>
 
-          {/* Coluna 10-12: Sobre */}
-          <aside className="lg:col-span-3 bg-pink-50 border border-pink-200 rounded-2xl p-6 shadow text-center text-pink-800 flex flex-col justify-between h-full">
+          {/* Sobre */}
+          <aside
+            className="lg:col-span-3 bg-pink-50 border border-pink-200 rounded-2xl p-6 shadow text-center text-pink-800 flex flex-col justify-between max-h-[400px] sm:max-h-full overflow-hidden"
+            style={{ height: boxHeight ? `${boxHeight}px` : "auto" }}
+          >
             <h3 className="text-2xl font-medium font-display text-pink-600 mb-4">Sobre</h3>
             <div className="flex flex-col gap-3 mb-6">
               <p className="text-base leading-relaxed">
@@ -81,28 +140,39 @@ const HomePage = () => {
                 🧠 O objetivo é divulgar os trabalhos de Iniciação Científica do curso.
               </p>
             </div>
-            <Link
-              href="/episodios/1"
-              className="inline-block bg-white border border-pink-500 text-pink-600 hover:bg-pink-100 px-4 py-1.5 rounded-full font-medium text-sm sm:text-base transition hover:shadow-md"
-            >
-              <Mic size={16} className="inline mr-2" />
-              Ouça sobre nossa criação
-            </Link>
+
+            <div>
+              <button
+                onClick={handleClick}
+                className="inline-block bg-white border border-pink-500 text-pink-600 hover:bg-pink-100 px-4 py-1.5 rounded-full font-medium text-sm sm:text-base transition hover:shadow-md"
+              >
+                <Mic size={16} className="inline mr-2" />
+                Ouça sobre nossa criação
+              </button>
+
+              {showLinks && (
+                <div className="mt-4 flex justify-center gap-4 text-2xl animate-fade-in transition-opacity duration-300">
+                  <a href="https://open.spotify.com/episode/sua-url" target="_blank" rel="noopener noreferrer" className="text-green-500 hover:scale-110 transition-transform"><FaSpotify /></a>
+                  <a href="https://youtube.com/watch?v=sua-url" target="_blank" rel="noopener noreferrer" className="text-red-500 hover:scale-110 transition-transform"><FaYoutube /></a>
+                  <a href="https://www.amazon.com.br/dp/sua-url" target="_blank" rel="noopener noreferrer" className="text-yellow-500 hover:scale-110 transition-transform"><FaAmazon /></a>
+                  <a href="https://www.deezer.com/show/sua-url" target="_blank" rel="noopener noreferrer" className="text-purple-500 hover:scale-110 transition-transform"><FaDeezer /></a>
+                  <a href="https://soundcloud.com/sua-url" target="_blank" rel="noopener noreferrer" className="text-orange-500 hover:scale-110 transition-transform"><FaSoundcloud /></a>
+                </div>
+              )}
+            </div>
           </aside>
         </div>
       </section>
 
+      {/* Contato */}
       <section id="contato" className="bg-pink-400 py-12 px-6 sm:px-12 text-gray-800">
         <div className="max-w-7xl mx-auto bg-white rounded-3xl shadow-lg p-8 sm:p-10 border border-pink-200">
           <h2 className="text-2xl sm:text-3xl font-bold text-pink-600 mb-4 text-center">
             Entre em Contato
           </h2>
-
           <p className="text-center text-base sm:text-lg mb-6">
             Tem alguma dúvida, sugestão ou elogio? Fale com a gente!
           </p>
-
-          {/* Ícones de redes sociais */}
           <div className="flex justify-center gap-6 text-3xl mt-4">
             <a
               href="mailto:escutaessahistoria@ufam.edu.br"
@@ -120,7 +190,6 @@ const HomePage = () => {
             >
               <FaInstagram />
             </a>
-            
           </div>
         </div>
       </section>

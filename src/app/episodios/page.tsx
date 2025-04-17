@@ -54,7 +54,7 @@ const EpisodiosPage = () => {
               <a href="https://open.spotify.com/show/seu-podcast" target="_blank" rel="noopener noreferrer" className="text-[#1DB954] hover:scale-110 transition-transform"><FaSpotify /></a>
               <a href="https://youtube.com/seucanal" target="_blank" rel="noopener noreferrer" className="text-[#FF0000] hover:scale-110 transition-transform"><FaYoutube /></a>
               <a href="https://music.amazon.com" target="_blank" rel="noopener noreferrer" className="text-[#FF9900] hover:scale-110 transition-transform"><FaAmazon /></a>
-              <a href="https://www.deezer.com/br/show/1000137625" target="_blank" rel="noopener noreferrer" className="text-black hover:scale-110 transition-transform"><FaDeezer /></a>
+              <a href="https://www.deezer.com/br/show/1000137625" target="_blank" rel="noopener noreferrer" className="text-purple-500 hover:scale-110 transition-transform"><FaDeezer /></a>
               <a href="https://soundcloud.com/escutaessahistoriaufam" target="_blank" rel="noopener noreferrer" className="text-[#fe4002] hover:scale-110 transition-transform"><FaSoundcloud /></a>
             </div>
           </div>

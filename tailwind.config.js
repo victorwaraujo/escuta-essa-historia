@@ -19,6 +19,7 @@ module.exports = {
           400: "#c86bfa",
         },
       },
+      
     },
   },
   plugins: [],

@@ -64,6 +64,8 @@ const HeroBanner = () => {
                   src="/images/hero.jpg"
                   alt="Host"
                   layout="fill"
+                  sizes="100vw"
+                  priority
                   className="object-cover rounded-2xl group-hover:scale-105 transition-transform duration-700 ease-in-out"
                 />
               </motion.div>
@@ -133,7 +135,7 @@ const HeroBanner = () => {
                   href="https://www.deezer.com/br/show/1000137625"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-black hover:scale-110 transition-transform"
+                  className="text-purple-500 hover:scale-110 transition-transform"
                 >
                   <FaDeezer />
                 </a>
@@ -141,7 +143,7 @@ const HeroBanner = () => {
                   href="https://soundcloud.com/escutaessahistoriaufam"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#fe4002] hover:scale-110 transition-transform"
+                  className="text-orange-500 hover:scale-110 transition-transform"
                 >
                   <FaSoundcloud />
                 </a>
