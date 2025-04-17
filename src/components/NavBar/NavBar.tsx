@@ -3,63 +3,83 @@ import Link from "next/link"
 import Image from "next/image"
 import { useState } from "react"
 import { Menu, X } from "lucide-react"
+import { usePathname } from "next/navigation"
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false)
+  const pathname = usePathname()
 
   const toggleMenu = () => setIsOpen(!isOpen)
 
+  const links = [
+    { href: "/", label: "INÍCIO" },
+    { href: "/episodios", label: "EPISÓDIOS" },
+    { href: "/mensagens", label: "MENSAGENS" },
+    { href: "#contato", label: "CONTATO" },
+  ]
+
   return (
     <nav className="bg-pink-400 shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between bg-pink-400">
+      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         
         {/* Logo */}
-        <div className="flex items-center gap-2">
-          <Image
-            src="/images/logo.png" 
-            alt="Logo"
-            width={48}
-            height={48}
-            className="h-12 w-auto object-contain cursor-pointer"
-          />
-        </div>
+        <Link href="/" passHref>
+          <div className="flex items-center gap-2 cursor-pointer">
+            <Image
+              src="/images/logo5.png"
+              alt="Logo"
+              width={48}
+              height={48}
+              className="h-12 w-auto object-contain"
+              priority
+            />
+          </div>
+        </Link>
 
-        {/* Menu Desktop */}
-        <ul className="hidden sm:flex gap-6 text-sm font-display font-bold text-white">
-          <li className="transition hover:text-pink-700">
-            <Link href="#episodios">EPISÓDIOS</Link>
-          </li>
-          <li className="transition hover:text-pink-700">
-            <Link href="#episodios">MENSAGENS</Link>
-          </li>
-          <li className="transition hover:text-pink-700">
-            <Link href="#sobre">SOBRE</Link>
-          </li>
-          <li className="transition hover:text-pink-700">
-            <Link href="#contato">CONTATO</Link>
-          </li>
+        {/* Desktop Menu */}
+        <ul className="hidden sm:flex gap-6 text-sm font- font-bold text-white">
+          {links.map(({ href, label }) => (
+            <li key={href}>
+              <Link
+                href={href}
+                className={`transition hover:text-pink-100 ${
+                  pathname === href ? "underline underline-offset-4" : ""
+                }`}
+              >
+                {label}
+              </Link>
+            </li>
+          ))}
         </ul>
 
         {/* Botão Mobile */}
         <button
-          className="sm:hidden text-purple-900"
+          className="sm:hidden text-white"
           onClick={toggleMenu}
-          aria-label="Menu"
+          aria-label="Abrir menu"
         >
           {isOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
 
-      {/* Menu Mobile com animação */}
+      {/* Menu Mobile */}
       <div
-        className={`sm:hidden transition-all duration-300 ease-in-out overflow-hidden ${
-          isOpen ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'
+        className={`sm:hidden transition-all duration-300 ease-in-out overflow-hidden bg-white text-pink-700 font-medium border-t border-pink-100 ${
+          isOpen ? "max-h-64 opacity-100" : "max-h-0 opacity-0"
         }`}
       >
-        <ul className="flex flex-col gap-4 px-6 py-4 bg-white text-purple-900 font-medium border-t border-pink-100">
-          <li><Link href="#episodios" onClick={toggleMenu}>EPISÓDIOS</Link></li>
-          <li><Link href="#sobre" onClick={toggleMenu}>SOBRE</Link></li>
-          <li><Link href="#contato" onClick={toggleMenu}>CONTATO</Link></li>
+        <ul className="flex flex-col gap-4 px-6 py-4">
+          {links.map(({ href, label }) => (
+            <li key={href}>
+              <Link
+                href={href}
+                onClick={() => setIsOpen(false)}
+                className="block w-full hover:text-pink-500 transition-colors"
+              >
+                {label}
+              </Link>
+            </li>
+          ))}
         </ul>
       </div>
     </nav>

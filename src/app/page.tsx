@@ -1,9 +1,11 @@
 import Link from "next/link";
+
 import NavBar from "../components/NavBar/NavBar";
 import HeroCarousel from "../components/Hero/HeroBanner";
 import EpisodeCard from "../components/Episodes/EpisodeCards";
-import { Mic } from "lucide-react";
-import { FaEnvelope, FaInstagram, FaSpotify, FaYoutube } from "react-icons/fa";
+import { Mic, MessageSquareText } from "lucide-react";
+import { FaEnvelope, FaInstagram } from "react-icons/fa";
+
 
 const HomePage = () => {
   return (
@@ -25,9 +27,13 @@ const HomePage = () => {
               tags={["Pesquisa", "Extensão"]}
               audioUrl="/audios/episodio1.mp3"
               imageUrl="/images/ep2.jpg"
+              duration= "string"
+              participants= {["string"]}
               spotifyUrl="https://open.spotify.com/episode/0eaE0sWbMVaAldfnYYmqwp"
               youtubeUrl="https://youtube.com"
               amazonUrl="https://music.amazon.com"
+              deezerUrl=""
+              soundcloudUrl=""
             />
 
             <EpisodeCard
@@ -36,15 +42,19 @@ const HomePage = () => {
               tags={["HistóriaDoBrasil", "RegiaoNordeste"]}
               audioUrl="/audios/episodio2.mp3"
               imageUrl="/images/ep1.jpg"
+              duration= "string"
+              participants= {["string"]}
               spotifyUrl="https://open.spotify.com"
               youtubeUrl=""
               amazonUrl=""
+              deezerUrl=""
+              soundcloudUrl=""
             />
           </div>
 
           {/* Coluna 7-9: Mensagens */}
           <div className="lg:col-span-3 bg-pink-50 rounded-2xl p-6 text-center text-pink-800 shadow border border-pink-200 flex flex-col justify-between h-full">
-            <h3 className="text-2xl font-bold text-pink-600 mb-4">Mensagens</h3>
+            <h3 className="text-2xl font- font-display text-pink-600 mb-4">Mensagens</h3>
             <p className="italic mb-4">
               “O podcast me faz refletir sobre temas que nunca imaginei. Obrigado por tanto!”
             </p>
@@ -55,13 +65,14 @@ const HomePage = () => {
               href="/mensagens"
               className="inline-block bg-white border border-pink-500 text-pink-600 hover:bg-pink-100 px-4 py-1.5 rounded-full font-medium text-sm sm:text-base transition hover:shadow-md"
             >
-              Ver mais mensagens
+              <MessageSquareText size={16} className="inline mr-2" />
+              Mais mensagens
             </Link>
           </div>
 
           {/* Coluna 10-12: Sobre */}
           <aside className="lg:col-span-3 bg-pink-50 border border-pink-200 rounded-2xl p-6 shadow text-center text-pink-800 flex flex-col justify-between h-full">
-            <h3 className="text-2xl font-bold text-pink-600 mb-4">Sobre</h3>
+            <h3 className="text-2xl font-medium font-display text-pink-600 mb-4">Sobre</h3>
             <div className="flex flex-col gap-3 mb-6">
               <p className="text-base leading-relaxed">
                 🎓 Produzido por estudantes e egressos de História da UFAM.
@@ -109,22 +120,7 @@ const HomePage = () => {
             >
               <FaInstagram />
             </a>
-            <a
-              href="https://youtube.com/seucanal"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-red-500 hover:opacity-80 transition-opacity"
-            >
-              <FaYoutube />
-            </a>
-            <a
-              href="https://open.spotify.com/show/seu-podcast"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-green-500 hover:opacity-80 transition-opacity"
-            >
-              <FaSpotify />
-            </a>
+            
           </div>
         </div>
       </section>

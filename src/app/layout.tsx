@@ -17,6 +17,9 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "Escuta Essa História",
   description: "Podcast de história",
+  icons: {
+    icon: "/favicon.png",
+  },
 }
 
 export default function RootLayout({

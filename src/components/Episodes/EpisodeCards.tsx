@@ -4,6 +4,7 @@ import { Calendar, Mic, Clock, ThumbsUp, Play } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SiSpotify, SiYoutube, SiAmazon } from "react-icons/si";
 import Image from "next/image";
+import { FaDeezer, FaSoundcloud } from "react-icons/fa";
 
 export interface EpisodeProps {
   title: string;
@@ -11,9 +12,13 @@ export interface EpisodeProps {
   tags: string[];
   audioUrl: string;
   imageUrl: string;
+  duration: string;
+  participants: string[];
   spotifyUrl?: string;
   youtubeUrl?: string;
   amazonUrl?: string;
+  deezerUrl?: string
+  soundcloudUrl?: string
 }
 
 type PlatformIcon = {
@@ -26,9 +31,13 @@ const EpisodeCard = ({
   date,
   tags,
   imageUrl,
+  duration,
+  participants,
   spotifyUrl,
   youtubeUrl,
   amazonUrl,
+  deezerUrl,
+  soundcloudUrl,
 }: EpisodeProps) => {
   const [likes, setLikes] = useState(0);
   const [showPlatforms, setShowPlatforms] = useState(false);
@@ -67,6 +76,13 @@ const EpisodeCard = ({
     amazonUrl && {
       icon: <SiAmazon size={28} className="text-yellow-500" />,
       link: amazonUrl,
+    },deezerUrl && {
+      icon: <FaDeezer size={28} className="text-gray-900" />,
+      link: amazonUrl,
+    },
+    soundcloudUrl && {
+      icon: <FaSoundcloud size={28} className="text-orange-600-500" />,
+      link: amazonUrl,
     },
   ].filter(Boolean) as PlatformIcon[];
 
@@ -87,10 +103,10 @@ const EpisodeCard = ({
           <h3 className="text-base sm:text-lg font-semibold mb-2">{title}</h3>
 
           <div className="flex items-center gap-2 text-gray-700 mb-1 text-xs sm:text-sm">
-            <Mic size={16} /> <span>por Monize, Rafael e Stefany</span>
+            <Mic size={16} /> <span>{participants.join(', ')}</span>
           </div>
           <div className="flex items-center gap-2 text-gray-700 mb-1 text-xs sm:text-sm">
-            <Clock size={14} /> <span>1h 10min</span>
+            <Clock size={14} /> <span>{duration}</span>
           </div>
           <div className="flex items-center gap-2 text-gray-700 mb-1 text-xs sm:text-sm">
             <Calendar size={14} /> <span>{date}</span>

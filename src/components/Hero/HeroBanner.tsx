@@ -2,7 +2,7 @@
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { Play } from "lucide-react"
-import { FaSpotify, FaYoutube, FaAmazon } from "react-icons/fa"
+import { FaSpotify, FaYoutube, FaAmazon, FaSoundcloud, FaDeezer } from "react-icons/fa"
 import { useState } from "react"
 
 const HeroBanner = () => {
@@ -106,7 +106,7 @@ const HeroBanner = () => {
                 className="mt-6 flex gap-6 text-3xl"
               >
                 <a
-                  href="https://open.spotify.com/show/seu-podcast"
+                  href="https://open.spotify.com/show/2WAO8QLQPaCVmS5F8QwTD7"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[#1DB954] hover:scale-110 transition-transform"
@@ -122,12 +122,28 @@ const HeroBanner = () => {
                   <FaYoutube />
                 </a>
                 <a
-                  href="https://music.amazon.com"
+                  href="https://music.amazon.com/podcasts/e4fd67cd-d51f-4629-ac4c-383453fb71ec/escuta-essa-hist%C3%B3ria"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[#FF9900] hover:scale-110 transition-transform"
                 >
                   <FaAmazon />
+                </a>
+                <a
+                  href="https://www.deezer.com/br/show/1000137625"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-black hover:scale-110 transition-transform"
+                >
+                  <FaDeezer />
+                </a>
+                <a
+                  href="https://soundcloud.com/escutaessahistoriaufam"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#fe4002] hover:scale-110 transition-transform"
+                >
+                  <FaSoundcloud />
                 </a>
               </motion.div>
             )}

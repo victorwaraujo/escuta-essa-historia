@@ -14,6 +14,11 @@ module.exports = {
         display: "var(--font-display)", 
         body: "var(--font-body)",       
       },
+      colors: {
+        roxo: {
+          400: "#c86bfa",
+        },
+      },
     },
   },
   plugins: [],
