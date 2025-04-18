@@ -9,15 +9,37 @@ const LoginPage = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsLoading(true)
+    setError('')
+  
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+  
+      const data = await response.json()
+  
+      if (!response.ok) {
+        throw new Error(data.message || 'Erro no login')
+      }
 
-    // Simulação de autenticação para administradores
-    if (email === 'admin@podcast.com' && password === '123456') {
-      router.push('/admin') // redireciona para página admin
-    } else {
-      setError('Credenciais inválidas. Tente novamente.')
+      // Armazena token no localStorage (ideal: usar cookie HttpOnly no backend)
+      localStorage.setItem('authToken', data.token)
+      router.push('/admin')
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError('Erro desconhecido')
+      }
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -28,48 +50,50 @@ const LoginPage = () => {
           <div className="bg-pink-100 text-pink-600 p-4 rounded-full mb-4">
             <FaLock size={28} />
           </div>
-          <h1 className="text-3xl font-bold text-gray-700 font-display">Área Administrativa</h1>
-          <p className="text-sm text-gray-600 font-body text-center mt-2">
-            Faça login para acessar o painel de gerenciamento do podcast.
-          </p>
+          <h1 className="text-3xl font-bold text-gray-700">Área Administrativa</h1>
         </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-gray-700 text-sm font-medium mb-1 font-body">
+            <label htmlFor="email" className="block text-gray-700 text-sm font-medium mb-1">
               E-mail
             </label>
             <input
+              id="email"
               type="email"
-              className="w-full px-4 py-2 border border-pink-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-300"
-              placeholder="admin@podcast.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-2 border border-pink-200 rounded-xl"
               required
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 text-sm font-medium mb-1 font-body">
+            <label htmlFor="password" className="block text-gray-700 text-sm font-medium mb-1">
               Senha
             </label>
             <input
+              id="password"
               type="password"
-              className="w-full px-4 py-2 border border-pink-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-300"
-              placeholder="Sua senha secreta"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-2 border border-pink-200 rounded-xl"
               required
             />
           </div>
 
-          {error && <p className="text-sm text-red-500 font-body">{error}</p>}
-
           <button
             type="submit"
-            className="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 rounded-xl transition duration-200"
+            disabled={isLoading}
+            className="w-full bg-pink-600 text-white py-2 rounded-xl transition hover:bg-pink-700 disabled:opacity-50"
           >
-            Entrar
+            {isLoading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
       </div>

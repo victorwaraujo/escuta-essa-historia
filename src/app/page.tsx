@@ -16,6 +16,7 @@ interface Episodio {
   imageUrl: string;
   duration: string;
   participants: string[];
+  likes: number;
   spotifyUrl?: string;
   youtubeUrl?: string;
   amazonUrl?: string;

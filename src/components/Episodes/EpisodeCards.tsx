@@ -7,6 +7,7 @@ import Image from "next/image";
 import { FaDeezer, FaSoundcloud } from "react-icons/fa";
 
 export interface EpisodeProps {
+  id: number; // <- ADICIONADO
   title: string;
   date: string;
   tags: string[];
@@ -14,11 +15,12 @@ export interface EpisodeProps {
   imageUrl: string;
   duration: string;
   participants: string[];
+  likes: number; // <- ADICIONADO
   spotifyUrl?: string;
   youtubeUrl?: string;
   amazonUrl?: string;
-  deezerUrl?: string
-  soundcloudUrl?: string
+  deezerUrl?: string;
+  soundcloudUrl?: string;
 }
 
 type PlatformIcon = {
@@ -27,6 +29,7 @@ type PlatformIcon = {
 };
 
 const EpisodeCard = ({
+  id,
   title,
   date,
   tags,
@@ -38,19 +41,34 @@ const EpisodeCard = ({
   amazonUrl,
   deezerUrl,
   soundcloudUrl,
+  likes: initialLikes, // <- INICIAL
 }: EpisodeProps) => {
-  const [likes, setLikes] = useState(0);
+  const [likes, setLikes] = useState(initialLikes);
   const [showPlatforms, setShowPlatforms] = useState(false);
   const [floatingHearts, setFloatingHearts] = useState<number[]>([]);
 
-  const handleLike = () => {
+  const handleLike = async () => {
     setLikes((prev) => prev + 1);
 
-    const id = Date.now();
-    setFloatingHearts((prev) => [...prev, id]);
+    const idHeart = Date.now();
+    setFloatingHearts((prev) => [...prev, idHeart]);
+
     setTimeout(() => {
-      setFloatingHearts((prev) => prev.filter((heartId) => heartId !== id));
+      setFloatingHearts((prev) => prev.filter((heartId) => heartId !== idHeart));
     }, 1000);
+
+    // Enviar like para o backend
+    try {
+      await fetch("/api/episodes/like", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ episodeId: id, like: true }),
+      });
+    } catch (error) {
+      console.error("Erro ao curtir episódio:", error);
+    }
   };
 
   const handlePlayClick = () => setShowPlatforms(true);
@@ -76,13 +94,14 @@ const EpisodeCard = ({
     amazonUrl && {
       icon: <SiAmazon size={28} className="text-yellow-500" />,
       link: amazonUrl,
-    },deezerUrl && {
+    },
+    deezerUrl && {
       icon: <FaDeezer size={28} className="text-gray-900" />,
-      link: amazonUrl,
+      link: deezerUrl,
     },
     soundcloudUrl && {
-      icon: <FaSoundcloud size={28} className="text-orange-600-500" />,
-      link: amazonUrl,
+      icon: <FaSoundcloud size={28} className="text-orange-600" />,
+      link: soundcloudUrl,
     },
   ].filter(Boolean) as PlatformIcon[];
 
@@ -103,7 +122,7 @@ const EpisodeCard = ({
           <h3 className="text-base sm:text-lg font-semibold mb-2">{title}</h3>
 
           <div className="flex items-center gap-2 text-gray-700 mb-1 text-xs sm:text-sm">
-            <Mic size={16} /> <span>{participants.join(', ')}</span>
+            <Mic size={16} /> <span>{participants.join(", ")}</span>
           </div>
           <div className="flex items-center gap-2 text-gray-700 mb-1 text-xs sm:text-sm">
             <Clock size={14} /> <span>{duration}</span>
@@ -125,7 +144,6 @@ const EpisodeCard = ({
         </div>
 
         <div className="flex justify-between items-center mt-4">
-          {/* Curtir + animação */}
           <div className="relative flex items-center gap-2 text-pink-600">
             <button
               onClick={handleLike}
