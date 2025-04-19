@@ -1,21 +1,50 @@
 import { NextResponse } from 'next/server'
+import { type NextRequest } from 'next/server'
 import jwt from 'jsonwebtoken'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'seuSegredoSuperSecreto'
+const JWT_SECRET = process.env.JWT_SECRET
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD
 
-export async function POST(req: Request) {
-  const { email, password } = await req.json()
-
-  if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-    const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '1h' })
-
-    return NextResponse.json({ token })
+export async function POST(request: NextRequest) {
+  if (!JWT_SECRET || !ADMIN_EMAIL || !ADMIN_PASSWORD) {
+    return NextResponse.json(
+      { message: 'Erro de configuração do servidor' },
+      { status: 500 }
+    )
   }
 
-  return NextResponse.json(
-    { message: 'Credenciais inválidas' },
-    { status: 401 }
-  )
+  try {
+    const { email, password } = await request.json()
+
+    if (email?.trim() !== ADMIN_EMAIL.trim() || password?.trim() !== ADMIN_PASSWORD.trim()) {
+      return NextResponse.json(
+        { message: 'Credenciais inválidas' },
+        { status: 401 }
+      )
+    }
+
+    const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '1m' }) // 1 minuto
+
+    const response = NextResponse.json(
+      { message: 'Login realizado com sucesso' },
+      { status: 200 }
+    )
+
+    response.cookies.set('authToken', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 60, // 60 segundos (1 minuto)
+      path: '/',
+    })
+
+    return response
+  } catch (error) {
+    console.error('Erro no login:', error)
+    return NextResponse.json(
+      { message: 'Erro interno no servidor' },
+      { status: 500 }
+    )
+  }
 }

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import NavBar from "@/components/NavBar/NavBar";
 import Image from "next/image";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import LogoutButton from "@/app/api/LogoutButton"
 
 const AdminUploadPage = () => {
   const [form, setForm] = useState({
@@ -129,6 +130,8 @@ const AdminUploadPage = () => {
     <ProtectedRoute>
       <>
         <NavBar />
+        
+        
         <main className="bg-pink-50 min-h-screen py-12 px-6 sm:px-0">
           <section className="max-w-3xl mx-auto bg-white p-8 rounded-3xl shadow-xl border border-pink-100">
             <h1 className="text-2xl font-bold text-gray-700 mb-6">
@@ -353,6 +356,9 @@ const AdminUploadPage = () => {
               </button>
             </form>
           </section>
+          <div className="flex justify-center  pt-5">
+            <LogoutButton />
+          </div>
         </main>
       </>
     </ProtectedRoute>

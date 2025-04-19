@@ -9,7 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fastify/cookie": "^11.0.2",
     "@prisma/client": "^6.6.0",
+    "fastify": "^5.3.2",
     "framer-motion": "^12.7.2",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.487.0",

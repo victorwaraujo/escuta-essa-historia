@@ -6,24 +6,30 @@ import { useRouter } from 'next/navigation'
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   useEffect(() => {
-    const verifyToken = () => {
-      if (typeof window === 'undefined') return
-
-      const token = localStorage.getItem('authToken')
-
-      if (!token) {
-        console.error('Token não encontrado')
+    const verifyAuth = async () => {
+      try {
+        const res = await fetch('/api/verify-auth', {
+          method: 'GET',
+          credentials: 'include'
+        })
+        
+        if (res.ok) {
+          setIsAuthenticated(true)
+        } else {
+          router.push('/login')
+        }
+      } catch (error) {
+        console.error('Erro de verificação:', error)
         router.push('/login')
-        return
+      } finally {
+        setIsLoading(false)
       }
-
-      // Aqui, apenas verifica se o token existe, sem validar conteúdo.
-      setIsLoading(false)
     }
 
-    verifyToken()
+    verifyAuth()
   }, [router])
 
   if (isLoading) {
@@ -37,5 +43,5 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     )
   }
 
-  return <>{children}</>
+  return isAuthenticated ? <>{children}</> : null
 }

@@ -20,23 +20,22 @@ const LoginPage = () => {
       const response = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       })
   
-      const data = await response.json()
-  
       if (!response.ok) {
-        throw new Error(data.message || 'Erro no login')
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Credenciais inválidas')
       }
-
-      // Armazena token no localStorage (ideal: usar cookie HttpOnly no backend)
-      localStorage.setItem('authToken', data.token)
+  
       router.push('/admin')
+      router.refresh()
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message)
       } else {
-        setError('Erro desconhecido')
+        setError('Ocorreu um erro durante o login')
       }
     } finally {
       setIsLoading(false)
