@@ -100,33 +100,42 @@ const EpisodeCard = ({
       console.error("Erro ao curtir episódio:", error);
     }
   };
+
   const handleDelete = async () => {
     if (!confirm('Tem certeza que deseja excluir este episódio?')) return;
     
     setIsDeleting(true);
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1];
-      
-      const response = await fetch('/api/episodes/delete', {
+      const response = await fetch(`/api/episodes/delete`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ id })
+        body: JSON.stringify({ id: String(id) }),
+        credentials: 'include',
       });
-
-      if (response.ok) {
-        // Chama a callback se existir
-        if (onEpisodeDeleted) {
-          onEpisodeDeleted();
-        }
-      } else {
-        throw new Error('Falha ao deletar episódio');
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Falha ao deletar episódio');
       }
+  
+      // 1. Primeiro mostra a mensagem de sucesso
+      alert('Episódio deletado com sucesso!');
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      
+      // 2. Chama a callback se existir
+      if (onEpisodeDeleted) {
+        onEpisodeDeleted();
+      }
+      
+      
     } catch (error) {
-      console.error('Erro ao deletar episódio:', error);
-      alert('Erro ao deletar episódio');
+      console.error('Erro completo:', error);
+      alert(`Erro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
     } finally {
       setIsDeleting(false);
     }
@@ -173,7 +182,7 @@ const EpisodeCard = ({
         <button
           onClick={handleDelete}
           disabled={isDeleting}
-          className="absolute top-3 right-3 z-50 p-2 bg-white rounded-full shadow-lg hover:bg-red-50 transition-colors border border-red-200"
+          className="absolute top-3 right-3 z-20 p-2 bg-white rounded-full shadow-lg hover:bg-red-50 transition-colors border border-red-200"
           aria-label="Excluir episódio"
         >
           {isDeleting ? (

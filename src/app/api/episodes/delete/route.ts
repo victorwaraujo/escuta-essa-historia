@@ -1,35 +1,46 @@
-import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-import jwt from 'jsonwebtoken'
+import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient()
-const JWT_SECRET = process.env.JWT_SECRET || 'seuSegredoSuperSecreto'
+const prisma = new PrismaClient();
+const JWT_SECRET = process.env.JWT_SECRET!;
 
 export async function DELETE(request: Request) {
-  const token = request.headers.get('authorization')?.split(' ')[1]
-  
-  if (!token) {
-    return NextResponse.json({ message: 'Não autorizado' }, { status: 401 })
-  }
-
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { role?: string }
-    if (decoded.role !== 'admin') {
-      return NextResponse.json({ message: 'Não autorizado' }, { status: 403 })
+    const cookieStore = cookies(); 
+    const token = cookieStore.get('authToken')?.value;
+
+    if (!token) {
+      return NextResponse.json({ message: 'Token não encontrado - Faça login novamente' }, { status: 401 });
     }
 
-    const { id } = await request.json()
-    
-    const deletedEpisode = await prisma.episode.delete({
-      where: { id }
-    })
+    const decoded = jwt.verify(token, JWT_SECRET) as { role?: string, email?: string };
+    console.log('Token decodificado:', decoded);
 
-    return NextResponse.json(deletedEpisode, { status: 200 })
+    if (decoded.role !== 'admin') {
+      return NextResponse.json({ message: 'Acesso não autorizado' }, { status: 403 });
+    }
+
+    const { id } = await request.json();
+
+    if (!id) {
+      return NextResponse.json({ message: 'ID do episódio é obrigatório' }, { status: 400 });
+    }
+
+    await prisma.episode.delete({ where: { id: String(id) } });
+
+    return NextResponse.json({ message: 'Episódio deletado com sucesso' }, { status: 200 });
+
   } catch (error) {
-    console.error('Erro ao deletar episódio:', error)
-    return NextResponse.json(
-      { message: 'Erro ao deletar episódio' },
-      { status: 500 }
-    )
+    console.error('Erro no servidor:', error);
+
+    if (error instanceof jwt.JsonWebTokenError) {
+      return NextResponse.json({ message: 'Token inválido: ' + error.message }, { status: 401 });
+    }
+
+    return NextResponse.json({ message: 'Erro ao processar a requisição' }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }
