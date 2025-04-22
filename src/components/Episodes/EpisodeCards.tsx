@@ -48,7 +48,7 @@ const EpisodeCard = ({
 }: EpisodeProps) => {
   const [likes, setLikes] = useState(initialLikes);
   const [showPlatforms, setShowPlatforms] = useState(false);
-  const [floatingHearts, setFloatingHearts] = useState<number[]>([]);
+  const [floatingHearts, setFloatingHearts] = useState<string[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -71,14 +71,14 @@ const EpisodeCard = ({
 
   const handleLike = async () => {
     setLikes((prev) => prev + 1);
-
-    const idHeart = Date.now();
+  
+    const idHeart = `${Date.now()}-${Math.random()}`;
     setFloatingHearts((prev) => [...prev, idHeart]);
-
+  
     setTimeout(() => {
       setFloatingHearts((prev) => prev.filter((heartId) => heartId !== idHeart));
     }, 1000);
-
+  
     try {
       await fetch("/api/episodes/like", {
         method: "POST",
@@ -91,7 +91,6 @@ const EpisodeCard = ({
       console.error("Erro ao curtir episódio:", error);
     }
   };
-
   const handleDelete = async () => {
     if (!confirm('Tem certeza que deseja excluir este episódio?')) return;
     
