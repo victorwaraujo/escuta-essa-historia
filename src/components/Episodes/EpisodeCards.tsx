@@ -55,9 +55,16 @@ const EpisodeCard = ({
   useEffect(() => {
     const checkAdminStatus = async () => {
       try {
+        const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1];
+        
         const res = await fetch('/api/auth/check', {
-          credentials: 'include'
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         })
+        
+        if (!res.ok) throw new Error('Falha na verificação')
+        
         const { isAdmin } = await res.json()
         setIsAdmin(isAdmin)
       } catch (error) {
@@ -65,6 +72,8 @@ const EpisodeCard = ({
         setIsAdmin(false)
       }
     }
+    
+    
   
     checkAdminStatus()
   }, [])

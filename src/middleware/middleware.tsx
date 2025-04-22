@@ -17,7 +17,10 @@ export function middleware(request: NextRequest) {
     }
 
     try {
-      jwt.verify(token, JWT_SECRET) // Use a variável de ambiente
+      const decoded = jwt.verify(token, JWT_SECRET) as { role?: string }
+      if (decoded.role !== 'admin' && isAdminRoute) {
+        return NextResponse.redirect(new URL('/login', request.url))
+      }
     } catch (error) {
       console.error('Falha na verificação do token:', error)
       const response = NextResponse.redirect(new URL('/login', request.url))

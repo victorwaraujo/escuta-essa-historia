@@ -24,7 +24,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '1m' }) // 1 minuto
+    const token = jwt.sign(
+      { 
+        email,
+        role: 'admin' // Isso é essencial para identificar o usuário como admin
+      }, 
+      JWT_SECRET, 
+      { expiresIn: '1h' }
+    )
+
 
     const response = NextResponse.json(
       { message: 'Login realizado com sucesso' },
@@ -35,7 +43,7 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 60, // 60 segundos (1 minuto)
+      maxAge: 3600, // 60 segundos (1 minuto)
       path: '/',
     })
 
