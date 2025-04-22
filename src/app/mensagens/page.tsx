@@ -25,6 +25,27 @@ export default function MensagensPage() {
   const [mensagens, setMensagens] = useState<Mensagem[]>([])
   const [autor, setAutor] = useState("")
   const [conteudo, setConteudo] = useState("")
+  const [isAdmin, setIsAdmin] = useState(false);
+  
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      try {
+        const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1];
+        const res = await fetch('/api/auth/check', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        const { isAdmin } = await res.json();
+        setIsAdmin(isAdmin);
+      } catch (error) {
+        console.error('Erro na verificação:', error);
+        setIsAdmin(false);
+      }
+    };
+    checkAdminStatus();
+  }, []);
 
   // Buscar mensagens ao carregar a página
   useEffect(() => {
@@ -48,6 +69,25 @@ export default function MensagensPage() {
 
     fetchMensagens()
   }, [])
+
+  const handleDeleteMessage = async (id: number) => {
+    try {
+      const response = await fetch('/api/messages/delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id }),
+      });
+
+      if (!response.ok) throw new Error('Falha ao deletar mensagem');
+
+      setMensagens(prev => prev.filter(msg => msg.id !== id));
+    } catch (error) {
+      console.error('Erro:', error);
+      alert('Erro ao deletar mensagem');
+    }
+  };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -132,7 +172,16 @@ export default function MensagensPage() {
             {/* Lista de mensagens */}
             <section className="space-y-6">
               {mensagens.map((mensagem) => (
-                <MensagemCard key={mensagem.id} {...mensagem} />
+                <MensagemCard
+                  key={mensagem.id}
+                  id={mensagem.id}
+                  autor={mensagem.autor}
+                  conteudo={mensagem.conteudo}
+                  data={mensagem.data}
+                  cor={mensagem.cor}
+                  isAdmin={isAdmin}
+                  onDelete={handleDeleteMessage}
+                />
               ))}
             </section>
           </div>
