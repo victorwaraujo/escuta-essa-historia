@@ -15,7 +15,7 @@ const NavBar = () => {
     { href: "/", label: "INÍCIO" },
     { href: "/episodios", label: "EPISÓDIOS" },
     { href: "/mensagens", label: "MENSAGENS" },
-    { href: "#contato", label: "CONTATO" },
+    { href: "/#contato", label: "CONTATO" },
   ]
 
   return (
@@ -26,7 +26,7 @@ const NavBar = () => {
         <Link href="/" passHref>
           <div className="flex items-center gap-2 cursor-pointer">
             <Image
-              src="/images/logo5.png"
+              src="/images/logo21.png"
               alt="Logo"
               width={48}
               height={48}

@@ -1,26 +1,27 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Calendar, Mic, Clock, ThumbsUp, Play } from "lucide-react";
+import { Calendar, Mic, Clock, ThumbsUp, Play, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SiSpotify, SiYoutube, SiAmazon } from "react-icons/si";
 import Image from "next/image";
 import { FaDeezer, FaSoundcloud } from "react-icons/fa";
 
 export interface EpisodeProps {
-  id: number; // <- ADICIONADO
+  id: number;
   title: string;
   date: string;
   tags: string[];
-  audioUrl: string;
   imageUrl: string;
   duration: string;
   participants: string[];
-  likes: number; // <- ADICIONADO
+  likes: number;
   spotifyUrl?: string;
   youtubeUrl?: string;
   amazonUrl?: string;
   deezerUrl?: string;
   soundcloudUrl?: string;
+  onEpisodeDeleted?: () => void;
+  
 }
 
 type PlatformIcon = {
@@ -41,11 +42,32 @@ const EpisodeCard = ({
   amazonUrl,
   deezerUrl,
   soundcloudUrl,
-  likes: initialLikes, // <- INICIAL
+  likes: initialLikes,
+  onEpisodeDeleted,
+  
 }: EpisodeProps) => {
   const [likes, setLikes] = useState(initialLikes);
   const [showPlatforms, setShowPlatforms] = useState(false);
   const [floatingHearts, setFloatingHearts] = useState<number[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      try {
+        const res = await fetch('/api/auth/check', {
+          credentials: 'include'
+        })
+        const { isAdmin } = await res.json()
+        setIsAdmin(isAdmin)
+      } catch (error) {
+        console.error('Erro na checagem:', error)
+        setIsAdmin(false)
+      }
+    }
+  
+    checkAdminStatus()
+  }, [])
 
   const handleLike = async () => {
     setLikes((prev) => prev + 1);
@@ -57,7 +79,6 @@ const EpisodeCard = ({
       setFloatingHearts((prev) => prev.filter((heartId) => heartId !== idHeart));
     }, 1000);
 
-    // Enviar like para o backend
     try {
       await fetch("/api/episodes/like", {
         method: "POST",
@@ -68,6 +89,38 @@ const EpisodeCard = ({
       });
     } catch (error) {
       console.error("Erro ao curtir episódio:", error);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm('Tem certeza que deseja excluir este episódio?')) return;
+    
+    setIsDeleting(true);
+    try {
+      const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1];
+      
+      const response = await fetch('/api/episodes/delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ id })
+      });
+
+      if (response.ok) {
+        // Chama a callback se existir
+        if (onEpisodeDeleted) {
+          onEpisodeDeleted();
+        }
+      } else {
+        throw new Error('Falha ao deletar episódio');
+      }
+    } catch (error) {
+      console.error('Erro ao deletar episódio:', error);
+      alert('Erro ao deletar episódio');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -107,6 +160,22 @@ const EpisodeCard = ({
 
   return (
     <div className="relative bg-white border border-pink-100 text-gray-900 rounded-3xl p-6 flex flex-col sm:flex-row gap-6 shadow-md hover:shadow-pink-300/50 hover:shadow-2xl transition-all duration-300 text-sm sm:text-base overflow-hidden">
+      {/* Botão de deletar (apenas para admin) */}
+      {isAdmin && (
+        <button
+          onClick={handleDelete}
+          disabled={isDeleting}
+          className="absolute top-3 right-3 z-50 p-2 bg-white rounded-full shadow-lg hover:bg-red-50 transition-colors border border-red-200"
+          aria-label="Excluir episódio"
+        >
+          {isDeleting ? (
+            <span className="loading loading-spinner loading-xs text-red-500"></span>
+          ) : (
+            <Trash2 size={18} className="text-red-600" />
+          )}
+        </button>
+      )}
+
       <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden shadow-xl bg-pink-100">
         <Image
           src={imageUrl}

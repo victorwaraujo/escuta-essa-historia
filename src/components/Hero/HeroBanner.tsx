@@ -9,7 +9,8 @@ const HeroBanner = () => {
   const [showPlatforms, setShowPlatforms] = useState(false)
 
   return (
-    <section className="w-full bg-gradient-to-b from-pink-100 to-orange-50">
+    <section className="w-full bg-pink-50">
+    {/* <section className="w-full bg-gradient-to-b from-pink-100 to-orange-50"> */}
       <div className="relative max-w-7xl mx-auto h-auto sm:h-[650px] overflow-hidden py-16 sm:py-0">
 
         {/* Decoração de fundo */}

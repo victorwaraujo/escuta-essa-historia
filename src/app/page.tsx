@@ -81,7 +81,7 @@ const HomePage = () => {
   };
 
   return (
-    <main className="text-gray-900 bg-orange-50 min-h-screen">
+    <main className="text-gray-900 bg-pink-50 min-h-screen">
       <NavBar />
       <HeroCarousel />
 
@@ -100,7 +100,7 @@ const HomePage = () => {
 
           {/* Mensagens */}
           <div
-            className="lg:col-span-3 bg-pink-50 rounded-2xl p-6 text-center text-pink-800 shadow border border-pink-200 flex flex-col justify-between max-h-[400px] sm:max-h-full overflow-hidden"
+            className="lg:col-span-3 bg-purple-100 rounded-2xl p-6 text-center text-pink-800 shadow border border-pink-200 flex flex-col justify-between max-h-[400px] sm:max-h-full overflow-hidden"
             style={{ height: boxHeight ? `${boxHeight}px` : "auto" }}
           >
             <h3 className="text-2xl font-display text-pink-600 mb-4">Mensagens</h3>
@@ -129,7 +129,7 @@ const HomePage = () => {
 
           {/* Sobre */}
           <aside
-            className="lg:col-span-3 bg-pink-50 border border-pink-200 rounded-2xl p-6 shadow text-center text-pink-800 flex flex-col justify-between max-h-[400px] sm:max-h-full overflow-hidden"
+            className="lg:col-span-3 bg-purple-100 border border-pink-200 rounded-2xl p-6 shadow text-center text-pink-800 flex flex-col justify-between max-h-[400px] sm:max-h-full overflow-hidden"
             style={{ height: boxHeight ? `${boxHeight}px` : "auto" }}
           >
             <h3 className="text-2xl font-medium font-display text-pink-600 mb-4">Sobre</h3>
@@ -153,11 +153,11 @@ const HomePage = () => {
 
               {showLinks && (
                 <div className="mt-4 flex justify-center gap-4 text-2xl animate-fade-in transition-opacity duration-300">
-                  <a href="https://open.spotify.com/episode/sua-url" target="_blank" rel="noopener noreferrer" className="text-green-500 hover:scale-110 transition-transform"><FaSpotify /></a>
+                  <a href="https://open.spotify.com/episode/6zK0MFZhDOwDh6I2GYEpZ4" target="_blank" rel="noopener noreferrer" className="text-green-500 hover:scale-110 transition-transform"><FaSpotify /></a>
                   <a href="https://youtube.com/watch?v=sua-url" target="_blank" rel="noopener noreferrer" className="text-red-500 hover:scale-110 transition-transform"><FaYoutube /></a>
-                  <a href="https://www.amazon.com.br/dp/sua-url" target="_blank" rel="noopener noreferrer" className="text-yellow-500 hover:scale-110 transition-transform"><FaAmazon /></a>
-                  <a href="https://www.deezer.com/show/sua-url" target="_blank" rel="noopener noreferrer" className="text-purple-500 hover:scale-110 transition-transform"><FaDeezer /></a>
-                  <a href="https://soundcloud.com/sua-url" target="_blank" rel="noopener noreferrer" className="text-orange-500 hover:scale-110 transition-transform"><FaSoundcloud /></a>
+                  <a href="https://music.amazon.com/podcasts/e4fd67cd-d51f-4629-ac4c-383453fb71ec/episodes/47d6887f-8827-430c-b714-23109c8369f6/escuta-essa-hist%C3%B3ria-escuta-essa-hist%C3%B3ria---apresenta%C3%A7%C3%A3o" target="_blank" rel="noopener noreferrer" className="text-yellow-500 hover:scale-110 transition-transform"><FaAmazon /></a>
+                  <a href="https://dzr.page.link/zeKnxhqaZvN8NaXc6" target="_blank" rel="noopener noreferrer" className="text-purple-500 hover:scale-110 transition-transform"><FaDeezer /></a>
+                  <a href="https://soundcloud.com/escutaessahistoriaufam/escuta-essa-historia" target="_blank" rel="noopener noreferrer" className="text-orange-500 hover:scale-110 transition-transform"><FaSoundcloud /></a>
                 </div>
               )}
             </div>
@@ -184,7 +184,7 @@ const HomePage = () => {
               <FaEnvelope />
             </a>
             <a
-              href="https://instagram.com/seuusuario"
+              href="https://www.instagram.com/escutaessahistoria_/?igsh=MXE2M2N1YjZqdWF3OQ%3D%3D#"
               target="_blank"
               rel="noopener noreferrer"
               className="text-pink-700 hover:opacity-80 transition-opacity"

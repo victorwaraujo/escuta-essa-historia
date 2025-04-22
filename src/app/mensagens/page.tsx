@@ -150,55 +150,20 @@ export default function MensagensPage() {
         </section>
         
       </main>
-      <footer className="bg-pink-200 border-t border-pink-200 py-6 w-full">
-        <div className="max-w-4xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-pink-800 text-sm">
-          <p className="text-center sm:text-left font-body">
-            © {new Date().getFullYear()} Escuta Essa História. Todos os direitos reservados.
-          </p>
-          <div className="flex gap-4 text-lg">
-            <a
-              href="https://open.spotify.com/show/seu-podcast"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#1DB954] hover:scale-110 transition-transform"
-            >
-              <FaSpotify />
-            </a>
-            <a
-              href="https://youtube.com/seucanal"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#FF0000] hover:scale-110 transition-transform"
-            >
-              <FaYoutube />
-            </a>
-            <a
-              href="https://music.amazon.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#FF9900] hover:scale-110 transition-transform"
-            >
-              <FaAmazon />
-            </a>
-            <a
-              href="https://www.deezer.com/br/show/1000137625"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-black hover:scale-110 transition-transform"
-            >
-              <FaDeezer />
-            </a>
-            <a
-              href="https://soundcloud.com/escutaessahistoriaufam"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#fe4002] hover:scale-110 transition-transform"
-            >
-              <FaSoundcloud />
-            </a>
-          </div>
-        </div>
-      </footer>
+      <footer className="bg-pink-200 border-t border-pink-200 py-6">
+            <div className="max-w-4xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-pink-800 text-sm">
+              <p className="text-center sm:text-left font-body">
+                © {new Date().getFullYear()} Escuta Essa História. Todos os direitos reservados.
+              </p>
+              <div className="flex gap-4 text-lg">
+                <a href="https://open.spotify.com/show/2WAO8QLQPaCVmS5F8QwTD7" target="_blank" rel="noopener noreferrer" className="text-[#1DB954] hover:scale-110 transition-transform"><FaSpotify /></a>
+                <a href="https://youtube.com/seucanal" target="_blank" rel="noopener noreferrer" className="text-[#FF0000] hover:scale-110 transition-transform"><FaYoutube /></a>
+                <a href="https://music.amazon.com/podcasts/e4fd67cd-d51f-4629-ac4c-383453fb71ec/escuta-essa-hist%C3%B3ria" target="_blank" rel="noopener noreferrer" className="text-[#FF9900] hover:scale-110 transition-transform"><FaAmazon /></a>
+                <a href="https://www.deezer.com/br/show/1000137625" target="_blank" rel="noopener noreferrer" className="text-purple-500 hover:scale-110 transition-transform"><FaDeezer /></a>
+                <a href="https://soundcloud.com/escutaessahistoriaufam" target="_blank" rel="noopener noreferrer" className="text-[#fe4002] hover:scale-110 transition-transform"><FaSoundcloud /></a>
+              </div>
+            </div>
+          </footer>
     </>
   )
 }
