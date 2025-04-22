@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 
 export async function DELETE(request: Request) {
   try {
-    const cookieStore = cookies(); 
+    const cookieStore = cookies() as unknown as { get: (name: string) => { value: string } | undefined };
     const token = cookieStore.get('authToken')?.value;
 
     if (!token) {
