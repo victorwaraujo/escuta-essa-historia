@@ -179,18 +179,66 @@ const EpisodeCard = ({
     <div className="relative bg-white border border-pink-100 text-gray-900 rounded-3xl p-6 flex flex-col sm:flex-row gap-6 shadow-md hover:shadow-pink-300/50 hover:shadow-2xl transition-all duration-300 text-sm sm:text-base overflow-hidden">
       {/* Botão de deletar (apenas para admin) */}
       {isAdmin && (
-        <button
-          onClick={handleDelete}
-          disabled={isDeleting}
-          className="absolute top-3 right-3 z-20 p-2 bg-white rounded-full shadow-lg hover:bg-red-50 transition-colors border border-red-200"
-          aria-label="Excluir episódio"
-        >
-          {isDeleting ? (
-            <span className="loading loading-spinner loading-xs text-red-500"></span>
-          ) : (
-            <Trash2 size={18} className="text-red-600" />
-          )}
-        </button>
+        <div className="absolute top-3 right-3 z-20">
+          <AnimatePresence>
+            {!isDeleting ? (
+              <motion.button
+                onClick={handleDelete}
+                className="p-2 bg-white rounded-full shadow-lg hover:bg-red-50 transition-colors border border-red-200"
+                aria-label="Excluir episódio"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Trash2 size={18} className="text-red-600" />
+              </motion.button>
+            ) : (
+              <motion.div
+                initial={{ scale: 1, opacity: 1 }}
+                animate={{ 
+                  scale: [1, 1.2, 0.8, 1.5, 0],
+                  opacity: [1, 0.8, 0.5, 0.2, 0],
+                  rotate: [0, 5, -5, 10, -15, 0]
+                }}
+                transition={{ duration: 0.8, ease: "easeInOut" }}
+                className="p-2 bg-white rounded-full shadow-lg border border-red-200 origin-center"
+              >
+                <motion.div
+                  animate={{ 
+                    opacity: [1, 0],
+                    scale: [1, 0.5]
+                  }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <Trash2 size={18} className="text-red-600" />
+                </motion.div>
+                
+                {/* Efeito de "cacos" */}
+                <div className="absolute inset-0 overflow-hidden">
+                  {[...Array(6)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0 }}
+                      animate={{ 
+                        opacity: [0, 1, 0],
+                        x: Math.cos(i * 60 * Math.PI/180) * 20,
+                        y: Math.sin(i * 60 * Math.PI/180) * 20
+                      }}
+                      transition={{ 
+                        duration: 0.8,
+                        delay: i * 0.05
+                      }}
+                      className="absolute w-1 h-1 bg-red-200 rounded-full"
+                      style={{
+                        left: '50%',
+                        top: '50%',
+                      }}
+                    />
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       )}
 
       <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden shadow-xl bg-pink-100">

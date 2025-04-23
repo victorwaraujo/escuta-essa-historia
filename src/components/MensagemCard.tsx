@@ -47,7 +47,7 @@ const MensagemCard = ({
       </div>
       
       {/* Conteúdo principal com layout diferente para mobile */}
-      <div className="flex-1 w-full min-w-0"> {/* Garante que o conteúdo use toda a largura no mobile */}
+      <div className="flex-1 w-full min-w-0 md:pr-8 sm:pr-10"> {/* Garante que o conteúdo use toda a largura no mobile */}
         {/* Linha do autor/data no mobile */}
         <div className="flex items-center gap-3 mb-3 sm:hidden">
           <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0"
@@ -64,7 +64,7 @@ const MensagemCard = ({
         <p className="text-base text-justify sm:text-lg font-body text-gray-800 mb-2 break-words w-full">
           {conteudo}
         </p>
-        <span className="text-xs text-gray-500 ml-2">{data}</span>
+        <span className="text-xs text-gray-500 block md:hidden">{data}</span>
         
         {/* Rodapé (apenas em desktop) */}
         <div className="hidden sm:flex text-xs sm:text-sm text-gray-500 font-body justify-between flex-wrap gap-1 break-words">

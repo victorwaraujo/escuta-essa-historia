@@ -180,8 +180,9 @@ const AdminUploadPage = () => {
                   value={form.duration}
                   onChange={handleChange}
                   className="w-full border border-pink-200 rounded-xl p-2 mt-1"
-                  step="60"
+                  step="1"
                 />
+                <p className="text-xs text-gray-500 mt-1">Formato: HH:MM:SS</p>
               </div>
 
               <div>
@@ -202,6 +203,7 @@ const AdminUploadPage = () => {
                 <input
                   type="text"
                   name="tags"
+                  placeholder="Ex: Amazonas, Podcast, Historia"
                   value={form.tags}
                   onChange={handleChange}
                   className="w-full border border-pink-200 rounded-xl p-2 mt-1"

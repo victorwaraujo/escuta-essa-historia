@@ -8,6 +8,32 @@ import { FaSpotify, FaYoutube, FaAmazon, FaDeezer, FaSoundcloud } from "react-ic
 const EpisodiosPage = () => {
   const [episodios, setEpisodios] = useState<EpisodeProps[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isAdmin, setIsAdmin] = useState(false)
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      try {
+        const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1];
+        
+        const res = await fetch('/api/auth/check', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!res.ok) throw new Error('Falha na verificação');
+        
+        const { isAdmin } = await res.json();
+        setIsAdmin(isAdmin);
+      } catch (error) {
+        console.error('Erro na checagem:', error);
+        setIsAdmin(false);
+      }
+    };
+    
+    checkAdminStatus();
+  }, []);
+  
 
   useEffect(() => {
     const fetchEpisodes = async () => {
@@ -48,6 +74,22 @@ const EpisodiosPage = () => {
                   Explore todos os episódios do nosso podcast! Novos episódios serão adicionados assim que forem publicados.
                 </p>
               </div>
+
+              {isAdmin && (
+                <div className="w-full sm:w-auto flex justify-end mb-4"> {/* Container para alinhar à direita */}
+                  <a
+                    href="/admin"
+                    className="inline-flex items-center gap-2 bg-white border-2 border-pink-500 text-pink-600 
+                              hover:bg-pink-50 px-5 py-2 rounded-full transition-all duration-200 shadow-sm
+                              hover:shadow-md font-medium text-sm sm:text-base"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+                    </svg>
+                    Adicionar Episódio
+                  </a>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                 {episodios.map((ep, idx) => (
