@@ -166,7 +166,7 @@ const EpisodeCard = ({
       link: amazonUrl,
     },
     deezerUrl && {
-      icon: <FaDeezer size={28} className="text-gray-900" />,
+      icon: <FaDeezer size={28} className="text-purple-500 hover:scale-110 transition-transform" />,
       link: deezerUrl,
     },
     soundcloudUrl && {
