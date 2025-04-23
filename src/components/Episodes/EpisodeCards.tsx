@@ -52,6 +52,129 @@ const EpisodeCard = ({
   const [isAdmin, setIsAdmin] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedData, setEditedData] = useState<Omit<EpisodeProps, 'id' | 'likes' | 'onEpisodeDeleted'>>({
+    title,
+    date,
+    tags,
+    imageUrl,
+    duration,
+    participants,
+    spotifyUrl,
+    youtubeUrl,
+    amazonUrl,
+    deezerUrl,
+    soundcloudUrl,
+  });
+
+  const parsePortugueseDate = (dateString: string): string => {
+    if (!dateString) return '';
+    
+    // Mapeamento dos meses em português
+    const months: Record<string, number> = {
+      'janeiro': 0, 'fevereiro': 1, 'março': 2, 'abril': 3,
+      'maio': 4, 'junho': 5, 'julho': 6, 'agosto': 7,
+      'setembro': 8, 'outubro': 9, 'novembro': 10, 'dezembro': 11
+    };
+  
+    // Extrai dia, mês e ano da string
+    const parts = dateString.split(' de ');
+    if (parts.length !== 3) return '';
+  
+    const day = parseInt(parts[0]);
+    const monthName = parts[1].toLowerCase();
+    const year = parseInt(parts[2]);
+  
+    if (isNaN(day) || isNaN(year) || !months.hasOwnProperty(monthName)) {
+      return '';
+    }
+  
+    const month = months[monthName] + 1; // JavaScript months are 0-indexed
+  
+    // Formata como YYYY-MM-DD
+    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  };
+
+  const handleEditClick = () => {
+    setEditedData({
+      title,
+      date: parsePortugueseDate(date), // Usa a nova função aqui
+      tags,
+      imageUrl,
+      duration,
+      participants,
+      spotifyUrl,
+      youtubeUrl,
+      amazonUrl,
+      deezerUrl,
+      soundcloudUrl,
+    });
+    setIsEditing(true);
+  };
+
+  const validatePlatformLinks = (data: typeof editedData) => {
+    return (
+      data.spotifyUrl ||
+      data.youtubeUrl ||
+      data.amazonUrl ||
+      data.deezerUrl ||
+      data.soundcloudUrl
+    );
+  };
+
+  // Função para salvar as edições
+  const handleSaveEdit = async () => {
+    try {
+      // Valida se pelo menos um link de plataforma foi fornecido
+      if (!validatePlatformLinks(editedData)) {
+        alert('Por favor, insira pelo menos um link de plataforma (Spotify, YouTube, etc.)');
+        return;
+      }
+  
+      // Garante que a data seja "2025-04-18T00:00:00"
+      const dateString = editedData.date
+        ? `${editedData.date}T00:00:00`
+        : undefined;
+  
+      const response = await fetch('/api/episodes/edit', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id,
+          ...editedData,
+          date: dateString,
+        }),
+        credentials: 'include',
+      });
+  
+      if (!response.ok) {
+        throw new Error('Falha ao atualizar episódio');
+      }
+  
+      await response.json();
+      alert('Episódio atualizado com sucesso!');
+      setIsEditing(false);
+      window.location.reload();
+    } catch (error) {
+      console.error('Erro ao editar episódio:', error);
+      alert(`Erro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+    }
+  };
+
+  // Função para atualizar um campo específico
+  const handleFieldChange = <K extends keyof typeof editedData>(
+    field: K,
+    value: typeof editedData[K]
+  ) => {
+    setEditedData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+
   useEffect(() => {
     const checkAdminStatus = async () => {
       try {
@@ -240,13 +363,310 @@ const EpisodeCard = ({
           </AnimatePresence>
         </div>
       )}
+      {isAdmin && (
+        <div className="absolute top-3 right-14 z-20"> {/* Mudei o right para 12 para ficar ao lado do delete */}
+          <motion.button
+            onClick={() => {
+              // Aqui você pode implementar a lógica para abrir um modal de edição
+              // ou redirecionar para uma página de edição
+              console.log('Editar episódio', id);
+            }}
+            className="p-2 bg-white rounded-full shadow-lg hover:bg-blue-50 transition-colors border border-blue-200"
+            aria-label="Editar episódio"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="18" 
+              height="18" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+              className="text-blue-600"
+            >
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+          </motion.button>
+        </div>
+      )}
 
-      <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden shadow-xl bg-pink-100">
+      {isAdmin && (
+        <div className="absolute top-3 right-14 z-20">
+          <motion.button
+            onClick={handleEditClick}
+            className="p-2 bg-white rounded-full shadow-lg hover:bg-blue-50 transition-colors border border-blue-200"
+            aria-label="Editar episódio"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="18" 
+              height="18" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+              className="text-blue-600"
+            >
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+          </motion.button>
+        </div>
+      )}
+
+      {/* Modal de edição */}
+      <AnimatePresence>
+        {isEditing && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={() => setIsEditing(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-xl font-bold mb-4 text-pink-600">Editar Episódio</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Campo Título */}
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium mb-1">Título *</label>
+                  <input
+                    type="text"
+                    value={editedData.title}
+                    onChange={(e) => handleFieldChange('title', e.target.value)}
+                    className="w-full p-2 border border-pink-200 rounded-lg"
+                    required
+                  />
+                </div>
+
+                {/* Campo Participantes */}
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium mb-1">Participantes *</label>
+                  <input
+                    type="text"
+                    value={editedData.participants.join(', ')}
+                    onChange={(e) => handleFieldChange('participants', e.target.value.split(',').map(p => p.trim()))}
+                    className="w-full p-2 border border-pink-200 rounded-lg"
+                    placeholder="Ex: Monize, Rafael e Stefany"
+                    required
+                  />
+                </div>
+
+                {/* Campo Duração */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">Duração *</label>
+                  <input
+                    type="time"
+                    value={editedData.duration}
+                    onChange={(e) => handleFieldChange('duration', e.target.value)}
+                    className="w-full p-2 border border-pink-200 rounded-lg"
+                    step="1"
+                    required
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Formato: HH:MM:SS</p>
+                </div>
+
+                {/* Campo Data */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">Data *</label>
+                  <input
+                    type="date"
+                    value={editedData.date }
+                    onChange={(e) => handleFieldChange('date', e.target.value)}
+                    className="w-full p-2 border border-pink-200 rounded-lg"
+                    required
+                  />
+                </div>
+
+                {/* Campo Tags */}
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium mb-1">Tags (separadas por vírgula) *</label>
+                  <input
+                    type="text"
+                    value={editedData.tags.join(', ')}
+                    onChange={(e) => handleFieldChange('tags', e.target.value.split(',').map(t => t.trim()))}
+                    className="w-full p-2 border border-pink-200 rounded-lg"
+                    placeholder="Ex: Amazonas, Podcast, Historia"
+                    required
+                  />
+                </div>
+
+                {/* Campo Imagem URL */}
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium mb-1">URL da Imagem *</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={editedData.imageUrl}
+                      onChange={(e) => handleFieldChange('imageUrl', e.target.value)}
+                      className="flex-1 p-2 border border-pink-200 rounded-lg"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('imageUpload')?.click()}
+                      className="bg-pink-100 text-pink-700 px-3 rounded-lg border border-pink-200 hover:bg-pink-200"
+                    >
+                      Upload
+                    </button>
+                    <input
+                      id="imageUpload"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+
+                        const formData = new FormData();
+                        formData.append("file", file);
+                        formData.append("upload_preset", "podcast_uploads");
+
+                        try {
+                          const res = await fetch(
+                            `https://api.cloudinary.com/v1_1/dgrap26b6/image/upload`,
+                            {
+                              method: "POST",
+                              body: formData,
+                            }
+                          );
+
+                          const data = await res.json();
+                          handleFieldChange('imageUrl', data.secure_url);
+                        } catch (error) {
+                          console.error("Erro no upload da imagem:", error);
+                          alert("Erro ao fazer upload da imagem");
+                        }
+                      }}
+                    />
+                  </div>
+                  {editedData.imageUrl && (
+                    <div className="mt-2 w-full h-40 relative rounded-lg border border-pink-200 overflow-hidden">
+                      <Image
+                        src={editedData.imageUrl}
+                        alt="Preview"
+                        layout="fill"
+                        objectFit="cover"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Links das plataformas */}
+                <div className="col-span-2 border-t pt-4 mt-2">
+                  <h4 className="font-medium mb-3">Links das Plataformas</h4>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium mb-1 flex items-center gap-2">
+                        <SiSpotify className="text-green-500" /> Spotify
+                      </label>
+                      <input
+                        type="url"
+                        value={editedData.spotifyUrl || ''}
+                        onChange={(e) => handleFieldChange('spotifyUrl', e.target.value)}
+                        className="w-full p-2 border border-pink-200 rounded-lg"
+                        placeholder="URL do Spotify"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium mb-1 flex items-center gap-2">
+                        <SiYoutube className="text-red-500" /> YouTube
+                      </label>
+                      <input
+                        type="url"
+                        value={editedData.youtubeUrl || ''}
+                        onChange={(e) => handleFieldChange('youtubeUrl', e.target.value)}
+                        className="w-full p-2 border border-pink-200 rounded-lg"
+                        placeholder="URL do YouTube"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium mb-1 flex items-center gap-2">
+                        <SiAmazon className="text-yellow-500" /> Amazon Music
+                      </label>
+                      <input
+                        type="url"
+                        value={editedData.amazonUrl || ''}
+                        onChange={(e) => handleFieldChange('amazonUrl', e.target.value)}
+                        className="w-full p-2 border border-pink-200 rounded-lg"
+                        placeholder="URL do Amazon Music"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium mb-1 flex items-center gap-2">
+                        <FaDeezer className="text-purple-500" /> Deezer
+                      </label>
+                      <input
+                        type="url"
+                        value={editedData.deezerUrl || ''}
+                        onChange={(e) => handleFieldChange('deezerUrl', e.target.value)}
+                        className="w-full p-2 border border-pink-200 rounded-lg"
+                        placeholder="URL do Deezer"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium mb-1 flex items-center gap-2">
+                        <FaSoundcloud className="text-orange-500" /> SoundCloud
+                      </label>
+                      <input
+                        type="url"
+                        value={editedData.soundcloudUrl || ''}
+                        onChange={(e) => handleFieldChange('soundcloudUrl', e.target.value)}
+                        className="w-full p-2 border border-pink-200 rounded-lg"
+                        placeholder="URL do SoundCloud"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors border border-gray-300"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  className="px-4 py-2 text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 rounded-lg transition-colors"
+                >
+                  Salvar Alterações
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className=" w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden shadow-xl bg-pink-100">
         <Image
           src={imageUrl}
           alt={title}
           width={128}
           height={128}
+          quality={100}
           className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
         />
       </div>

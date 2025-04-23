@@ -166,7 +166,7 @@ const HomePage = () => {
       </section>
 
       {/* Contato */}
-      <section id="contato" className="bg-pink-400 py-12 px-6 sm:px-12 text-gray-800">
+      <section id="contato" className="bg-pink-500 py-12 px-6 sm:px-12 text-gray-800">
         <div className="max-w-7xl mx-auto bg-white rounded-3xl shadow-lg p-8 sm:p-10 border border-pink-200">
           <h2 className="text-2xl sm:text-3xl font-bold text-pink-600 mb-4 text-center">
             Entre em Contato
