@@ -28,7 +28,7 @@ const LoginPage = () => {
         const errorData = await response.json()
         throw new Error(errorData.message || 'Credenciais inválidas')
       }
-  
+      await new Promise(resolve => setTimeout(resolve, 100))
       router.push('/admin')
       router.refresh()
     } catch (err: unknown) {
