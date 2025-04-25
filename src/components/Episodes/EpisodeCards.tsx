@@ -1,6 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
-import { Calendar, Mic, Clock, ThumbsUp, Play, Trash2 } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Calendar, Mic, Clock, Play, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SiSpotify, SiYoutube, SiAmazon } from "react-icons/si";
 import Image from "next/image";
@@ -14,13 +14,13 @@ export interface EpisodeProps {
   imageUrl: string;
   duration: string;
   participants: string[];
-  likes: number;
   spotifyUrl?: string;
   youtubeUrl?: string;
   amazonUrl?: string;
   deezerUrl?: string;
   soundcloudUrl?: string;
   onEpisodeDeleted?: () => void;
+  reactions?: Record<string, number>;
   
 }
 
@@ -28,6 +28,9 @@ type PlatformIcon = {
   icon: React.ReactNode;
   link: string;
 };
+
+const EMOJIS = ['👍', '❤️', '😂', '😮', '🔥'] 
+
 
 const EpisodeCard = ({
   id,
@@ -42,16 +45,13 @@ const EpisodeCard = ({
   amazonUrl,
   deezerUrl,
   soundcloudUrl,
-  likes: initialLikes,
   onEpisodeDeleted,
+  reactions: serverReactions = {},
   
 }: EpisodeProps) => {
-  const [likes, setLikes] = useState(initialLikes);
   const [showPlatforms, setShowPlatforms] = useState(false);
-  const [floatingHearts, setFloatingHearts] = useState<string[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState<Omit<EpisodeProps, 'id' | 'likes' | 'onEpisodeDeleted'>>({
     title,
@@ -66,6 +66,18 @@ const EpisodeCard = ({
     deezerUrl,
     soundcloudUrl,
   });
+
+  const [reactions, setReactions] = useState<Record<string, number>>({});
+  const [showEmojis, setShowEmojis] = useState(false);
+  const [floatingEmojis, setFloatingEmojis] = useState<string[]>([]);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  
+
+  const loadReactions = useCallback(() => {
+    // Use apenas serverReactions para evitar duplicação
+    setReactions(serverReactions || {});
+  }, [serverReactions]);
 
   const parsePortugueseDate = (dateString: string): string => {
     if (!dateString) return '';
@@ -173,7 +185,14 @@ const EpisodeCard = ({
       [field]: value
     }));
   };
+  useEffect(() => {
+  setReactions(serverReactions || {}); // Sincroniza com o servidor
+  setHasMounted(true);
+  }, [serverReactions]);  
 
+  useEffect(() => {
+    loadReactions();
+  }, [loadReactions]);
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -201,28 +220,15 @@ const EpisodeCard = ({
     checkAdminStatus()
   }, [])
 
-  const handleLike = async () => {
-    setLikes((prev) => prev + 1);
-  
-    const idHeart = `${Date.now()}-${Math.random()}`;
-    setFloatingHearts((prev) => [...prev, idHeart]);
-  
-    setTimeout(() => {
-      setFloatingHearts((prev) => prev.filter((heartId) => heartId !== idHeart));
-    }, 1000);
-  
-    try {
-      await fetch("/api/episodes/like", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ episodeId: id, like: true }),
-      });
-    } catch (error) {
-      console.error("Erro ao curtir episódio:", error);
+  useEffect(() => {
+    if (showPlatforms) {
+      const timer = setTimeout(() => {
+        setShowPlatforms(false);
+      }, 5000);
+      return () => clearTimeout(timer);
     }
-  };
+  }, [showPlatforms]);
+
 
   const handleDelete = async () => {
     if (!confirm('Tem certeza que deseja excluir este episódio?')) return;
@@ -264,16 +270,77 @@ const EpisodeCard = ({
     }
   };
 
+  const handleReaction = async (emoji: string) => {
+    if (!hasMounted) return;
+  
+    const reactionsKey = `episode_${id}_reactions`;
+    const userReactions = localStorage.getItem(reactionsKey) || '';
+  
+    if (userReactions.includes(emoji)) {
+      alert('Você já reagiu com este emoji!');
+      return;
+    }
+  
+    // Atualização otimista
+    const newReactions = {
+      ...reactions,
+      [emoji]: (reactions[emoji] || 0) + 1
+    };
+    setReactions(newReactions);
+    setShowEmojis(false);
+  
+    // Efeito visual
+    const emojiId = `${Date.now()}-${emoji}`;
+    setFloatingEmojis(prev => [...prev, emojiId]);
+    setTimeout(() => {
+      setFloatingEmojis(prev => prev.filter(id => id !== emojiId));
+    }, 1000);
+  
+    // Atualiza localStorage
+    localStorage.setItem(reactionsKey, userReactions + emoji);
+  
+    try {
+      const response = await fetch("/api/episodes/reactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ episodeId: id, emoji }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        // Atualize as reações com a resposta do servidor
+        setReactions(data.reactions);
+      } else {
+        throw new Error(data.error || "Erro desconhecido");
+      }
+    } catch (error) {
+      console.error("Erro ao registrar reação:", error);
+      setReactions(reactions); // Rollback sem duplicar
+    }
+  };
+
+  if (!hasMounted) {
+    return (
+      <div className="bg-white border border-pink-100 rounded-3xl p-6 flex flex-col sm:flex-row gap-6 animate-pulse">
+        <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-gray-200"></div>
+        <div className="flex-1 space-y-4">
+          <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+          <div className="flex gap-2">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-6 w-16 bg-gray-200 rounded-full"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const handlePlayClick = () => setShowPlatforms(true);
 
-  useEffect(() => {
-    if (showPlatforms) {
-      const timer = setTimeout(() => {
-        setShowPlatforms(false);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [showPlatforms]);
+  
 
   const platformIcons: PlatformIcon[] = [
     spotifyUrl && {
@@ -698,36 +765,82 @@ const EpisodeCard = ({
         </div>
 
         <div className="flex justify-between items-center mt-4">
-          <div className="relative flex items-center gap-2 text-pink-600">
-            <button
-              onClick={handleLike}
-              className="flex items-center gap-1 text-sm font-medium hover:text-pink-800 transition-colors"
-            >
-              <ThumbsUp size={16} />
-              Curtir
-            </button>
-            <span className="text-xs text-gray-700">{likes}</span>
+          {/* Container das reações (ajustado para mobile) */}
+          <div className="relative flex-1 min-w-0 mr-2"> {/* Adicionei flex-1 e min-w-0 */}
+            <div className="relative flex items-center gap-3">
+              <button
+                onClick={() => setShowEmojis(!showEmojis)}
+                className="text-sm text-pink-600 hover:text-pink-800 font-bold transition-colors whitespace-nowrap" 
+              >
+                Reagir
+              </button>
+              
+              {/* Emojis flutuantes */}
+              <div className="absolute top-0 left-0">
+                <AnimatePresence>
+                  {floatingEmojis.map((id) => {
+                    const emoji = id.split('-')[1];
+                    return (
+                      <motion.div
+                        key={id}
+                        initial={{ opacity: 1, y: 0, scale: 1 }}
+                        animate={{ opacity: 0, y: -30, scale: 1.3 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 1 }}
+                        className="absolute text-xl"
+                      >
+                        {emoji}
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+              </div>
 
-            <div className="absolute top-0 left-0">
-              <AnimatePresence>
-                {floatingHearts.map((id) => (
-                  <motion.div
-                    key={id}
-                    initial={{ opacity: 1, y: 0, scale: 1 }}
-                    animate={{ opacity: 0, y: -30, scale: 1.3 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 1 }}
-                    className="absolute text-pink-500"
-                  >
-                    ❤️
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+              {/* Lista de emojis selecionáveis */}
+              {showEmojis && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="flex gap-2 bg-white p-2 rounded-full shadow-lg absolute bottom-full mb-2 z-10" 
+                >
+                  {EMOJIS.map(emoji => (
+                    <button
+                      key={emoji}
+                      onClick={() => handleReaction(emoji)}
+                      className="text-xl hover:scale-125 transition-transform"
+                      title={`Reagir com ${emoji}`}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+
+              {/* Contadores de reações (ajustado para mobile) */}
+              <div className="flex gap-1 overflow-x-auto max-w-[120px] sm:max-w-none"> {/* Adicionei overflow e max-width */}
+                {Object.entries(reactions || {})
+                  .filter(([, count]) => count > 0)
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([emoji, count]) => (
+                    <motion.span 
+                      key={emoji}
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                      className="inline-flex items-center justify-center bg-white rounded-full px-1.5 py-0.5 shadow-sm flex-shrink-0" 
+                    >
+                      <span className="text-lg">{emoji}</span>
+                      <span className="text-xs ml-0.5">{count}</span>
+                    </motion.span>
+                  ))
+                }
+              </div>
             </div>
           </div>
 
-          {/* Botão play (mobile) */}
-          <div className="sm:hidden">
+          {/* Botão play (mobile) - Ajustado para manter posição */}
+          <div className="sm:hidden flex-shrink-0 ml-2"> {/* Adicionei flex-shrink-0 e ml-2 */}
             <AnimatePresence mode="wait">
               {!showPlatforms ? (
                 <motion.button

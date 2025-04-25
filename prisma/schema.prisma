@@ -21,7 +21,7 @@ model Episode {
   deezerUrl     String?
   soundcloudUrl String?
   createdAt     DateTime @default(now())
-  likes         Int      @default(0)
+  reactions     Json?
 }
 
 model Mensagem {

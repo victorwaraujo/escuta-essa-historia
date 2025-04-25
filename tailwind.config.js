@@ -12,7 +12,8 @@ module.exports = {
     extend: {
       fontFamily: {
         display: "var(--font-display)", 
-        body: "var(--font-body)",       
+        body: "var(--font-body)",    
+        script: ['"Dancing Script"', 'cursive'],   
       },
       colors: {
         roxo: {
@@ -23,7 +24,4 @@ module.exports = {
     },
   },
   plugins: [],
-  fontFamily: {
-    script: ['"Dancing Script"', 'cursive'],
-  }
 }
