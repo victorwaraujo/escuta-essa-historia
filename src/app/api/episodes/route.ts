@@ -11,6 +11,13 @@ function formatDate(dateString: string): string {
   })
 }
 
+type EpisodeFormatted = Omit<Episode, "tags" | "participants" | "date" | "duration"> & {
+  tags: string[];
+  participants: string[];
+  date: string;
+  duration: string;
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json()
@@ -64,12 +71,12 @@ export async function GET(req: Request) {
       const { searchParams } = new URL(req.url)
       const limit = parseInt(searchParams.get("limit") || "0")
   
-      const episodes: Episode[] = await prisma.episode.findMany({
+      const episodes = await prisma.episode.findMany({
         orderBy: { date: "desc" },
         take: limit > 0 ? limit : undefined,
       })
   
-      const episodesFormatted = episodes.map((ep) => ({
+      const episodesFormatted: EpisodeFormatted[] = episodes.map((ep) => ({
         ...ep,
         tags: ep.tags ? ep.tags.split(",").map((tag) => tag.trim()) : [],
         participants: ep.participants
