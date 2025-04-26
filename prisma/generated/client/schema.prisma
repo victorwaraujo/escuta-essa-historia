@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Episode {
+  id            String   @id @default(cuid())
+  title         String
+  date          DateTime
+  tags          String
+  imageUrl      String
+  duration      String
+  participants  String
+  spotifyUrl    String?
+  youtubeUrl    String?
+  amazonUrl     String?
+  deezerUrl     String?
+  soundcloudUrl String?
+  createdAt     DateTime @default(now())
+  reactions     Json?
+}
+
+model Mensagem {
+  id       Int      @id @default(autoincrement())
+  autor    String
+  conteudo String
+  data     DateTime @default(now())
+}
