@@ -366,7 +366,7 @@ const EpisodeCard = ({
   ].filter(Boolean) as PlatformIcon[];
 
   return (
-    <div className="relative bg-white border border-pink-100 text-gray-900 rounded-3xl p-6 flex flex-col gap-6 shadow-md hover:shadow-pink-300/50 hover:shadow-2xl transition-all duration-300 text-sm sm:text-base overflow-hidden">
+    <div className="relative bg-white border border-pink-100 text-gray-900 rounded-3xl p-6 flex flex-col  gap-6 shadow-md hover:shadow-pink-300/50 hover:shadow-2xl transition-all duration-300 text-sm sm:text-base overflow-hidden">
       {/* Botões de admin (topo direito) */}
       {isAdmin && (
         <>
@@ -780,10 +780,24 @@ const EpisodeCard = ({
         <div className="flex items-center justify-start">
           <button
             onClick={() => setShowEmojis(!showEmojis)}
-            className="text-sm text-pink-600 hover:text-pink-800 font-bold transition-colors whitespace-nowrap"
+            className="relative text-sm text-pink-600 hover:text-pink-800 font-bold transition-colors whitespace-nowrap"
           >
             Reagir
           </button>
+          {showEmojis && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="flex gap-2 bg-white p-2 rounded-full shadow-lg absolute bottom-10 left-0 z-20"
+            >
+              {EMOJIS.map(emoji => (
+                <button key={emoji} onClick={() => handleReaction(emoji)}>
+                  {emoji}
+                </button>
+              ))}
+            </motion.div>
+          )}
           
           <div className="flex gap-1 overflow-x-auto max-w-full px-4">
             {Object.entries(reactions || {})
@@ -807,33 +821,78 @@ const EpisodeCard = ({
       </div>
 
       {/* Linha inferior - Reações e Play (DESKTOP) */}
-      <div className="hidden sm:flex items-center justify-between">
+      <div className="hidden sm:flex items-center mt-auto justify-between">
         {/* Reações desktop */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowEmojis(!showEmojis)}
-            className="text-sm text-pink-600 hover:text-pink-800 font-bold transition-colors whitespace-nowrap"
-          >
-            Reagir
-          </button>
-          
-          <div className="flex gap-1">
-            {Object.entries(reactions || {})
-              .filter(([, count]) => count > 0)
-              .sort((a, b) => b[1] - a[1])
-              .map(([emoji, count]) => (
-                <motion.span 
-                  key={emoji}
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 20 }}
-                  className="inline-flex items-center justify-center bg-white rounded-full px-1.5 py-0.5 shadow-sm"
-                >
-                  <span className="text-lg">{emoji}</span>
-                  <span className="text-xs ml-0.5">{count}</span>
-                </motion.span>
-              ))
-            }
+        <div className="relative flex-1 min-w-0 mr-2"> {/* Adicionei flex-1 e min-w-0 */}
+          <div className="relative flex items-center gap-3">
+            <button
+              onClick={() => setShowEmojis(!showEmojis)}
+              className="text-sm text-pink-600 hover:text-pink-800 font-bold transition-colors whitespace-nowrap" 
+            >
+              Reagir
+            </button>
+            
+            {/* Emojis flutuantes */}
+            <div className="absolute top-0 left-0">
+              <AnimatePresence>
+                {floatingEmojis.map((id) => {
+                  const emoji = id.split('-')[1];
+                  return (
+                    <motion.div
+                      key={id}
+                      initial={{ opacity: 1, y: 0, scale: 1 }}
+                      animate={{ opacity: 0, y: -30, scale: 1.3 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 1 }}
+                      className="absolute text-xl"
+                    >
+                      {emoji}
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            </div>
+
+            {/* Lista de emojis selecionáveis */}
+            {showEmojis && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="flex gap-2 bg-white p-2 rounded-full shadow-lg absolute bottom-full mb-2 z-10" 
+              >
+                {EMOJIS.map(emoji => (
+                  <button
+                    key={emoji}
+                    onClick={() => handleReaction(emoji)}
+                    className="text-xl hover:scale-125 transition-transform"
+                    title={`Reagir com ${emoji}`}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+
+            {/* Contadores de reações (ajustado para mobile) */}
+            <div className="flex gap-1 overflow-x-auto max-w-[120px] sm:max-w-none"> {/* Adicionei overflow e max-width */}
+              {Object.entries(reactions || {})
+                .filter(([, count]) => count > 0)
+                .sort((a, b) => b[1] - a[1])
+                .map(([emoji, count]) => (
+                  <motion.span 
+                    key={emoji}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                    className="inline-flex items-center justify-center bg-white rounded-full px-1.5 py-0.5 shadow-sm flex-shrink-0" 
+                  >
+                    <span className="text-lg">{emoji}</span>
+                    <span className="text-xs ml-0.5">{count}</span>
+                  </motion.span>
+                ))
+              }
+            </div>
           </div>
         </div>
 
@@ -878,47 +937,7 @@ const EpisodeCard = ({
         </div>
       </div>
 
-      {/* Emojis flutuantes (comum para mobile e desktop) */}
-      <div className="absolute top-0 left-0">
-        <AnimatePresence>
-          {floatingEmojis.map((id) => {
-            const emoji = id.split('-')[1];
-            return (
-              <motion.div
-                key={id}
-                initial={{ opacity: 1, y: 0, scale: 1 }}
-                animate={{ opacity: 0, y: -30, scale: 1.3 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 1 }}
-                className="absolute text-xl"
-              >
-                {emoji}
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
-      </div>
-
-      {/* Lista de emojis selecionáveis (comum para mobile e desktop) */}
-      {showEmojis && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.9 }}
-          className="flex gap-2 bg-white p-2 rounded-full shadow-lg absolute bottom-full mb-2 z-10"
-        >
-          {EMOJIS.map(emoji => (
-            <button
-              key={emoji}
-              onClick={() => handleReaction(emoji)}
-              className="text-xl hover:scale-125 transition-transform"
-              title={`Reagir com ${emoji}`}
-            >
-              {emoji}
-            </button>
-          ))}
-        </motion.div>
-      )}
+      
     </div>
   );
 };
