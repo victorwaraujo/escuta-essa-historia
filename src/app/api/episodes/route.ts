@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { Episode } from "@prisma/client"
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString)
@@ -63,7 +64,7 @@ export async function GET(req: Request) {
       const { searchParams } = new URL(req.url)
       const limit = parseInt(searchParams.get("limit") || "0")
   
-      const episodes = await prisma.episode.findMany({
+      const episodes: Episode[] = await prisma.episode.findMany({
         orderBy: { date: "desc" },
         take: limit > 0 ? limit : undefined,
       })
