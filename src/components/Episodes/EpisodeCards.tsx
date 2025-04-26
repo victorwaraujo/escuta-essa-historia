@@ -457,55 +457,242 @@ const EpisodeCard = ({
       )}
 
       {/* Modal de edição */}
+      
       <AnimatePresence>
-        {isEditing && (
+      {isEditing && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => setIsEditing(false)}
+        >
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-            onClick={() => setIsEditing(false)}
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.9, y: 20 }}
+            className="bg-white rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
           >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="bg-white rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h3 className="text-xl font-bold mb-4 text-pink-600">Editar Episódio</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Campos do formulário de edição */}
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium mb-1">Título *</label>
+            <h3 className="text-xl font-bold mb-4 text-pink-600">Editar Episódio</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Campo Título */}
+              <div className="col-span-2">
+                <label className="block text-sm font-medium mb-1">Título *</label>
+                <input
+                  type="text"
+                  value={editedData.title}
+                  onChange={(e) => handleFieldChange('title', e.target.value)}
+                  className="w-full p-2 border border-pink-200 rounded-lg"
+                  required
+                />
+              </div>
+
+              {/* Campo Participantes */}
+              <div className="col-span-2">
+                <label className="block text-sm font-medium mb-1">Participantes *</label>
+                <input
+                  type="text"
+                  value={editedData.participants.join(', ')}
+                  onChange={(e) => handleFieldChange('participants', e.target.value.split(',').map(p => p.trim()))}
+                  className="w-full p-2 border border-pink-200 rounded-lg"
+                  placeholder="Ex: Monize, Rafael e Stefany"
+                  required
+                />
+              </div>
+
+              {/* Campo Duração */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Duração *</label>
+                <input
+                  type="time"
+                  value={editedData.duration}
+                  onChange={(e) => handleFieldChange('duration', e.target.value)}
+                  className="w-full p-2 border border-pink-200 rounded-lg"
+                  step="1"
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">Formato: HH:MM:SS</p>
+              </div>
+
+              {/* Campo Data */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Data *</label>
+                <input
+                  type="date"
+                  value={editedData.date}
+                  onChange={(e) => handleFieldChange('date', e.target.value)}
+                  className="w-full p-2 border border-pink-200 rounded-lg"
+                  required
+                />
+              </div>
+
+              {/* Campo Tags */}
+              <div className="col-span-2">
+                <label className="block text-sm font-medium mb-1">Tags (separadas por vírgula) *</label>
+                <input
+                  type="text"
+                  value={editedData.tags.join(', ')}
+                  onChange={(e) => handleFieldChange('tags', e.target.value.split(',').map(t => t.trim()))}
+                  className="w-full p-2 border border-pink-200 rounded-lg"
+                  placeholder="Ex: Amazonas, Podcast, Historia"
+                  required
+                />
+              </div>
+
+              {/* Campo Imagem URL */}
+              <div className="col-span-2">
+                <label className="block text-sm font-medium mb-1">URL da Imagem *</label>
+                <div className="flex gap-2">
                   <input
                     type="text"
-                    value={editedData.title}
-                    onChange={(e) => handleFieldChange('title', e.target.value)}
-                    className="w-full p-2 border border-pink-200 rounded-lg"
+                    value={editedData.imageUrl}
+                    onChange={(e) => handleFieldChange('imageUrl', e.target.value)}
+                    className="flex-1 p-2 border border-pink-200 rounded-lg"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById('imageUpload')?.click()}
+                    className="bg-pink-100 text-pink-700 px-3 rounded-lg border border-pink-200 hover:bg-pink-200"
+                  >
+                    Upload
+                  </button>
+                  <input
+                    id="imageUpload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+
+                      const formData = new FormData();
+                      formData.append("file", file);
+                      formData.append("upload_preset", "podcast_uploads");
+
+                      try {
+                        const res = await fetch(
+                          `https://api.cloudinary.com/v1_1/dgrap26b6/image/upload`,
+                          {
+                            method: "POST",
+                            body: formData,
+                          }
+                        );
+
+                        const data = await res.json();
+                        handleFieldChange('imageUrl', data.secure_url);
+                      } catch (error) {
+                        console.error("Erro no upload da imagem:", error);
+                        alert("Erro ao fazer upload da imagem");
+                      }
+                    }}
+                  />
                 </div>
-                {/* ... outros campos do formulário ... */}
+                {editedData.imageUrl && (
+                  <div className="mt-2 w-full h-40 relative rounded-lg border border-pink-200 overflow-hidden">
+                    <Image
+                      src={editedData.imageUrl}
+                      alt="Preview"
+                      layout="fill"
+                      objectFit="cover"
+                    />
+                  </div>
+                )}
               </div>
-              <div className="flex justify-end gap-3 mt-6">
-                <button
-                  onClick={() => setIsEditing(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors border border-gray-300"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleSaveEdit}
-                  className="px-4 py-2 text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 rounded-lg transition-colors"
-                >
-                  Salvar Alterações
-                </button>
+
+              {/* Links das plataformas */}
+              <div className="col-span-2 border-t pt-4 mt-2">
+                <h4 className="font-medium mb-3">Links das Plataformas</h4>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium mb-1 flex items-center gap-2">
+                      <SiSpotify className="text-green-500" /> Spotify
+                    </label>
+                    <input
+                      type="url"
+                      value={editedData.spotifyUrl || ''}
+                      onChange={(e) => handleFieldChange('spotifyUrl', e.target.value)}
+                      className="w-full p-2 border border-pink-200 rounded-lg"
+                      placeholder="URL do Spotify"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium mb-1 flex items-center gap-2">
+                      <SiYoutube className="text-red-500" /> YouTube
+                    </label>
+                    <input
+                      type="url"
+                      value={editedData.youtubeUrl || ''}
+                      onChange={(e) => handleFieldChange('youtubeUrl', e.target.value)}
+                      className="w-full p-2 border border-pink-200 rounded-lg"
+                      placeholder="URL do YouTube"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium mb-1 flex items-center gap-2">
+                      <SiAmazon className="text-yellow-500" /> Amazon Music
+                    </label>
+                    <input
+                      type="url"
+                      value={editedData.amazonUrl || ''}
+                      onChange={(e) => handleFieldChange('amazonUrl', e.target.value)}
+                      className="w-full p-2 border border-pink-200 rounded-lg"
+                      placeholder="URL do Amazon Music"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium mb-1 flex items-center gap-2">
+                      <FaDeezer className="text-purple-500" /> Deezer
+                    </label>
+                    <input
+                      type="url"
+                      value={editedData.deezerUrl || ''}
+                      onChange={(e) => handleFieldChange('deezerUrl', e.target.value)}
+                      className="w-full p-2 border border-pink-200 rounded-lg"
+                      placeholder="URL do Deezer"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium mb-1 flex items-center gap-2">
+                      <FaSoundcloud className="text-orange-500" /> SoundCloud
+                    </label>
+                    <input
+                      type="url"
+                      value={editedData.soundcloudUrl || ''}
+                      onChange={(e) => handleFieldChange('soundcloudUrl', e.target.value)}
+                      className="w-full p-2 border border-pink-200 rounded-lg"
+                      placeholder="URL do SoundCloud"
+                    />
+                  </div>
+                </div>
               </div>
-            </motion.div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() => setIsEditing(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors border border-gray-300"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                className="px-4 py-2 text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 rounded-lg transition-colors"
+              >
+                Salvar Alterações
+              </button>
+            </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </motion.div>
+      )}
+    </AnimatePresence>
 
       {/* Conteúdo principal - Linha superior (imagem + detalhes) */}
       <div className="flex flex-col sm:flex-row gap-6">
@@ -524,7 +711,7 @@ const EpisodeCard = ({
         {/* Detalhes do episódio */}
         <div className="flex-1 flex flex-col">
           <div>
-            <h3 className="text-base sm:text-lg font-semibold mb-2">{title}</h3>
+            <h3 className="text-base sm:text-lg font-semibold mb-2 line-clamp-2">{title}</h3>
             <div className="flex items-center gap-2 text-gray-700 mb-1 text-xs sm:text-sm">
               <Mic size={16} /> <span>{participants.join(", ")}</span>
             </div>
