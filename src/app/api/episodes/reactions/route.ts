@@ -56,7 +56,7 @@ export async function POST(req: Request) {
     await prisma.episode.update({
       where: { id: episodeId },
       data: {
-        reactions: newReactions as Prisma.JsonObject
+        reactions: newReactions as Prisma.InputJsonValue
       }
     })
 
