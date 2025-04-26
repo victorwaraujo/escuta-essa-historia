@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 import { cookies } from 'next/headers'
-import { Prisma } from "@prisma/client"
 
 type ReactionCounts = Record<string, number>
 
@@ -56,7 +55,7 @@ export async function POST(req: Request) {
     await prisma.episode.update({
       where: { id: episodeId },
       data: {
-        reactions: newReactions as Prisma.InputJsonValue
+        reactions: newReactions,
       }
     })
 
