@@ -1,84 +1,84 @@
-"use client";
-import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import NavBar from "../components/NavBar/NavBar";
-import HeroCarousel from "../components/Hero/HeroBanner";
-import EpisodeCard from "../components/Episodes/EpisodeCards";
-import { Mic, MessageSquareText } from "lucide-react";
-import { FaEnvelope, FaInstagram, FaSpotify, FaYoutube, FaAmazon, FaDeezer, FaSoundcloud } from "react-icons/fa";
+"use client"
+import { useEffect, useRef, useState } from "react"
+import Link from "next/link"
+import NavBar from "../components/NavBar/NavBar"
+import HeroCarousel from "../components/Hero/HeroBanner"
+import EpisodeCard from "../components/Episodes/EpisodeCards"
+import { Mic, MessageSquareText } from "lucide-react"
+import { FaEnvelope, FaInstagram, FaSpotify, FaYoutube, FaAmazon, FaDeezer, FaSoundcloud } from "react-icons/fa"
 
 interface Episodio {
-  id: number;
-  title: string;
-  date: string;
-  tags: string[];
-  audioUrl: string;
-  imageUrl: string;
-  duration: string;
-  participants: string[];
-  likes: number;
-  spotifyUrl?: string;
-  youtubeUrl?: string;
-  amazonUrl?: string;
-  deezerUrl?: string;
-  soundcloudUrl?: string;
+  id: number,
+  title: string,
+  date: string,
+  tags: string[],
+  audioUrl: string,
+  imageUrl: string,
+  duration: string,
+  participants: string[],
+  likes: number,
+  spotifyUrl?: string,
+  youtubeUrl?: string,
+  amazonUrl?: string,
+  deezerUrl?: string,
+  soundcloudUrl?: string,
 }
 
 interface Mensagem {
-  id: number;
-  autor: string;
-  conteudo: string;
-  data: string;
+  id: number,
+  autor: string,
+  conteudo: string,
+  data: string,
 }
 
 const HomePage = () => {
-  const [episodios, setEpisodios] = useState<Episodio[]>([]);
-  const [mensagens, setMensagens] = useState<Mensagem[]>([]);
-  const [boxHeight, setBoxHeight] = useState<number | null>(null);
-  const episodioColRef = useRef<HTMLDivElement | null>(null);
+  const [episodios, setEpisodios] = useState<Episodio[]>([])
+  const [mensagens, setMensagens] = useState<Mensagem[]>([])
+  const [boxHeight, setBoxHeight] = useState<number | null>(null)
+  const episodioColRef = useRef<HTMLDivElement | null>(null)
 
-  const [showLinks, setShowLinks] = useState(false);
-  const hideTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [showLinks, setShowLinks] = useState(false)
+  const hideTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     async function fetchData() {
-      const epRes = await fetch("/api/episodes?limit=2");
-      const epData = await epRes.json();
-      setEpisodios(epData);
+      const epRes = await fetch("/api/episodes?limit=2")
+      const epData = await epRes.json()
+      setEpisodios(epData)
 
-      const msgRes = await fetch("/api/messages?limit=2");
-      const msgData = await msgRes.json();
-      setMensagens(msgData);
+      const msgRes = await fetch("/api/messages?limit=2")
+      const msgData = await msgRes.json()
+      setMensagens(msgData)
     }
 
-    fetchData();
-  }, []);
+    fetchData()
+  }, [])
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver(() => {
       if (episodioColRef.current) {
-        setBoxHeight(episodioColRef.current.offsetHeight);
+        setBoxHeight(episodioColRef.current.offsetHeight)
       }
     });
 
     if (episodioColRef.current) {
-      resizeObserver.observe(episodioColRef.current);
+      resizeObserver.observe(episodioColRef.current)
     }
 
-    return () => resizeObserver.disconnect();
-  }, [episodios]);
+    return () => resizeObserver.disconnect()
+  }, [episodios])
 
   const handleClick = () => {
-    setShowLinks(true);
+    setShowLinks(true)
 
     if (hideTimerRef.current) {
-      clearTimeout(hideTimerRef.current);
+      clearTimeout(hideTimerRef.current)
     }
 
     hideTimerRef.current = setTimeout(() => {
-      setShowLinks(false);
-    }, 5000);
-  };
+      setShowLinks(false)
+    }, 5000)
+  }
 
   return (
     <main className="text-gray-900 bg-pink-50 min-h-screen">
@@ -91,14 +91,12 @@ const HomePage = () => {
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Episódios */}
           <div ref={episodioColRef} className="lg:col-span-6 flex flex-col gap-6">
             {episodios.map((ep) => (
               <EpisodeCard key={ep.id} {...ep} />
             ))}
           </div>
 
-          {/* Mensagens */}
           <div
             className="lg:col-span-3 bg-purple-100 rounded-2xl p-6 text-center text-pink-800 shadow border border-pink-200 flex flex-col justify-between max-h-[400px] sm:max-h-full overflow-hidden"
             style={{ height: boxHeight ? `${boxHeight}px` : "auto" }}
@@ -127,7 +125,6 @@ const HomePage = () => {
             </Link>
           </div>
 
-          {/* Sobre */}
           <aside
             className="lg:col-span-3 bg-purple-100 border border-pink-200 rounded-2xl p-6 shadow text-center text-pink-800 flex flex-col justify-between max-h-[400px] sm:max-h-full overflow-hidden"
             style={{ height: boxHeight ? `${boxHeight}px` : "auto" }}
@@ -165,7 +162,6 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Contato */}
       <section id="contato" className="bg-pink-500 py-12 px-6 sm:px-12 text-gray-800">
         <div className="max-w-7xl mx-auto bg-white rounded-3xl shadow-lg p-8 sm:p-10 border border-pink-200">
           <h2 className="text-2xl sm:text-3xl font-bold text-pink-600 mb-4 text-center">
@@ -195,7 +191,7 @@ const HomePage = () => {
         </div>
       </section>
     </main>
-  );
-};
+  )
+}
 
 export default HomePage;

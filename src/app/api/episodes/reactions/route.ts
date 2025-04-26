@@ -1,23 +1,23 @@
-import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
-import { cookies } from 'next/headers';
-import { Prisma } from "@prisma/client";
+import { prisma } from "@/lib/prisma"
+import { NextResponse } from "next/server"
+import { cookies } from 'next/headers'
+import { Prisma } from "@prisma/client"
 
-type ReactionCounts = Record<string, number>;
+type ReactionCounts = Record<string, number>
 
 const EMOJIS = ['👍', '❤️', '😂', '😮', '🔥']
 
 
 
 export async function POST(req: Request) {
-  const { episodeId, emoji } = await req.json();
+  const { episodeId, emoji } = await req.json()
 
   if (!EMOJIS.includes(emoji)) {
-    return NextResponse.json({ error: "Emoji inválido" }, { status: 400 });
+    return NextResponse.json({ error: "Emoji inválido" }, { status: 400 })
   }
 
   if (!episodeId || !EMOJIS.includes(emoji)) {
-    return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
+    return NextResponse.json({ error: "Dados inválidos" }, { status: 400 })
   }
 
   try {
@@ -28,17 +28,17 @@ export async function POST(req: Request) {
         title: true,
         reactions: true,
       }
-    });
+    })
 
     const currentReactions: ReactionCounts = episode?.reactions 
       ? (episode.reactions as ReactionCounts) 
-      : {};
+      : {}
 
-    const newReactions: ReactionCounts = { ...currentReactions };
+    const newReactions: ReactionCounts = { ...currentReactions }
 
-    const cookieStore = await cookies();
-    const reactionsKey = `episode_${episodeId}_reactions`;
-    const userReactions = cookieStore.get(reactionsKey)?.value || '';
+    const cookieStore = await cookies()
+    const reactionsKey = `episode_${episodeId}_reactions`
+    const userReactions = cookieStore.get(reactionsKey)?.value || ''
 
     if (userReactions.includes(emoji)) {
       return NextResponse.json(
@@ -47,18 +47,18 @@ export async function POST(req: Request) {
       );
     }
 
-    newReactions[emoji] = (newReactions[emoji] || 0) + 1;
+    newReactions[emoji] = (newReactions[emoji] || 0) + 1
     console.log("Atualizando episódio:", {
       id: episodeId,
       reactions: newReactions
-    });
+    })
 
     await prisma.episode.update({
       where: { id: episodeId },
       data: {
         reactions: newReactions as Prisma.InputJsonValue
       }
-    });
+    })
 
     const newUserReactions = userReactions + emoji;
     const response = NextResponse.json({
@@ -73,10 +73,10 @@ export async function POST(req: Request) {
 
     return response;
   } catch (error) {
-    console.error("Error updating reactions:", error);
+    console.error("Error updating reactions:", error)
     return NextResponse.json(
       { error: "Failed to update reactions" },
       { status: 500 }
-    );
+    )
   }
 }

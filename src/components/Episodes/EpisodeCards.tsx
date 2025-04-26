@@ -1,33 +1,33 @@
-"use client";
-import { useState, useEffect, useCallback } from "react";
-import { Calendar, Mic, Clock, Play, Trash2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { SiSpotify, SiYoutube, SiAmazon } from "react-icons/si";
-import Image from "next/image";
-import { FaDeezer, FaSoundcloud } from "react-icons/fa";
+"use client"
+import { useState, useEffect, useCallback } from "react"
+import { Calendar, Mic, Clock, Play, Trash2 } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { SiSpotify, SiYoutube, SiAmazon } from "react-icons/si"
+import Image from "next/image"
+import { FaDeezer, FaSoundcloud } from "react-icons/fa"
 
 export interface EpisodeProps {
-  id: number;
-  title: string;
-  date: string;
-  tags: string[];
-  imageUrl: string;
-  duration: string;
-  participants: string[];
-  spotifyUrl?: string;
-  youtubeUrl?: string;
-  amazonUrl?: string;
-  deezerUrl?: string;
-  soundcloudUrl?: string;
-  onEpisodeDeleted?: () => void;
-  reactions?: Record<string, number>;
+  id: number,
+  title: string,
+  date: string,
+  tags: string[],
+  imageUrl: string,
+  duration: string,
+  participants: string[],
+  spotifyUrl?: string,
+  youtubeUrl?: string,
+  amazonUrl?: string,
+  deezerUrl?: string,
+  soundcloudUrl?: string,
+  onEpisodeDeleted?: () => void,
+  reactions?: Record<string, number>,
   
 }
 
 type PlatformIcon = {
-  icon: React.ReactNode;
-  link: string;
-};
+  icon: React.ReactNode,
+  link: string,
+}
 
 const EMOJIS = ['👍', '❤️', '😂', '😮', '🔥'] 
 
@@ -49,10 +49,10 @@ const EpisodeCard = ({
   reactions: serverReactions = {},
   
 }: EpisodeProps) => {
-  const [showPlatforms, setShowPlatforms] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [showPlatforms, setShowPlatforms] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
   const [editedData, setEditedData] = useState<Omit<EpisodeProps, 'id' | 'likes' | 'onEpisodeDeleted'>>({
     title,
     date,
@@ -65,52 +65,48 @@ const EpisodeCard = ({
     amazonUrl,
     deezerUrl,
     soundcloudUrl,
-  });
+  })
 
-  const [reactions, setReactions] = useState<Record<string, number>>({});
-  const [showEmojis, setShowEmojis] = useState(false);
-  const [floatingEmojis, setFloatingEmojis] = useState<string[]>([]);
-  const [hasMounted, setHasMounted] = useState(false);
+  const [reactions, setReactions] = useState<Record<string, number>>({})
+  const [showEmojis, setShowEmojis] = useState(false)
+  const [floatingEmojis, setFloatingEmojis] = useState<string[]>([])
+  const [hasMounted, setHasMounted] = useState(false)
 
   
 
   const loadReactions = useCallback(() => {
-    // Use apenas serverReactions para evitar duplicação
-    setReactions(serverReactions || {});
-  }, [serverReactions]);
+    setReactions(serverReactions || {})
+  }, [serverReactions])
 
   const parsePortugueseDate = (dateString: string): string => {
-    if (!dateString) return '';
+    if (!dateString) return ''
     
-    // Mapeamento dos meses em português
     const months: Record<string, number> = {
       'janeiro': 0, 'fevereiro': 1, 'março': 2, 'abril': 3,
       'maio': 4, 'junho': 5, 'julho': 6, 'agosto': 7,
       'setembro': 8, 'outubro': 9, 'novembro': 10, 'dezembro': 11
-    };
-  
-    // Extrai dia, mês e ano da string
-    const parts = dateString.split(' de ');
-    if (parts.length !== 3) return '';
-  
-    const day = parseInt(parts[0]);
-    const monthName = parts[1].toLowerCase();
-    const year = parseInt(parts[2]);
-  
-    if (isNaN(day) || isNaN(year) || !months.hasOwnProperty(monthName)) {
-      return '';
     }
   
-    const month = months[monthName] + 1; // JavaScript months are 0-indexed
+    const parts = dateString.split(' de ')
+    if (parts.length !== 3) return ''
   
-    // Formata como YYYY-MM-DD
-    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const day = parseInt(parts[0])
+    const monthName = parts[1].toLowerCase()
+    const year = parseInt(parts[2])
+  
+    if (isNaN(day) || isNaN(year) || !months.hasOwnProperty(monthName)) {
+      return ''
+    }
+  
+    const month = months[monthName] + 1
+  
+    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
   };
 
   const handleEditClick = () => {
     setEditedData({
       title,
-      date: parsePortugueseDate(date), // Usa a nova função aqui
+      date: parsePortugueseDate(date), 
       tags,
       imageUrl,
       duration,
@@ -121,7 +117,7 @@ const EpisodeCard = ({
       deezerUrl,
       soundcloudUrl,
     });
-    setIsEditing(true);
+    setIsEditing(true)
   };
 
   const validatePlatformLinks = (data: typeof editedData) => {
@@ -131,19 +127,16 @@ const EpisodeCard = ({
       data.amazonUrl ||
       data.deezerUrl ||
       data.soundcloudUrl
-    );
-  };
+    )
+  }
 
-  // Função para salvar as edições
   const handleSaveEdit = async () => {
     try {
-      // Valida se pelo menos um link de plataforma foi fornecido
       if (!validatePlatformLinks(editedData)) {
-        alert('Por favor, insira pelo menos um link de plataforma (Spotify, YouTube, etc.)');
-        return;
+        alert('Por favor, insira pelo menos um link de plataforma (Spotify, YouTube, etc.)')
+        return
       }
   
-      // Garante que a data seja "2025-04-18T00:00:00"
       const dateString = editedData.date
         ? `${editedData.date}T00:00:00`
         : undefined;
@@ -159,23 +152,22 @@ const EpisodeCard = ({
           date: dateString,
         }),
         credentials: 'include',
-      });
+      })
   
       if (!response.ok) {
-        throw new Error('Falha ao atualizar episódio');
+        throw new Error('Falha ao atualizar episódio')
       }
   
-      await response.json();
-      alert('Episódio atualizado com sucesso!');
-      setIsEditing(false);
-      window.location.reload();
+      await response.json()
+      alert('Episódio atualizado com sucesso!')
+      setIsEditing(false)
+      window.location.reload()
     } catch (error) {
-      console.error('Erro ao editar episódio:', error);
-      alert(`Erro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+      console.error('Erro ao editar episódio:', error)
+      alert(`Erro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`)
     }
-  };
+  }
 
-  // Função para atualizar um campo específico
   const handleFieldChange = <K extends keyof typeof editedData>(
     field: K,
     value: typeof editedData[K]
@@ -183,21 +175,21 @@ const EpisodeCard = ({
     setEditedData(prev => ({
       ...prev,
       [field]: value
-    }));
-  };
+    }))
+  }
   useEffect(() => {
-  setReactions(serverReactions || {}); // Sincroniza com o servidor
-  setHasMounted(true);
-  }, [serverReactions]);  
+  setReactions(serverReactions || {})
+  setHasMounted(true)
+  }, [serverReactions])  
 
   useEffect(() => {
-    loadReactions();
-  }, [loadReactions]);
+    loadReactions()
+  }, [loadReactions])
 
   useEffect(() => {
     const checkAdminStatus = async () => {
       try {
-        const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1];
+        const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1]
         
         const res = await fetch('/api/auth/check', {
           headers: {
@@ -215,25 +207,22 @@ const EpisodeCard = ({
       }
     }
     
-    
-  
     checkAdminStatus()
   }, [])
 
   useEffect(() => {
     if (showPlatforms) {
       const timer = setTimeout(() => {
-        setShowPlatforms(false);
-      }, 5000);
-      return () => clearTimeout(timer);
+        setShowPlatforms(false)
+      }, 5000)
+      return () => clearTimeout(timer)
     }
-  }, [showPlatforms]);
-
+  }, [showPlatforms])
 
   const handleDelete = async () => {
-    if (!confirm('Tem certeza que deseja excluir este episódio?')) return;
+    if (!confirm('Tem certeza que deseja excluir este episódio?')) return
     
-    setIsDeleting(true);
+    setIsDeleting(true)
     try {
       const response = await fetch(`/api/episodes/delete`, {
         method: 'DELETE',
@@ -242,83 +231,79 @@ const EpisodeCard = ({
         },
         body: JSON.stringify({ id: String(id) }),
         credentials: 'include',
-      });
+      })
   
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Falha ao deletar episódio');
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Falha ao deletar episódio')
       }
   
       // 1. Primeiro mostra a mensagem de sucesso
-      alert('Episódio deletado com sucesso!');
+      alert('Episódio deletado com sucesso!')
 
       setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+        window.location.reload()
+      }, 1000)
       
       // 2. Chama a callback se existir
       if (onEpisodeDeleted) {
-        onEpisodeDeleted();
+        onEpisodeDeleted()
       }
       
       
     } catch (error) {
-      console.error('Erro completo:', error);
-      alert(`Erro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+      console.error('Erro completo:', error)
+      alert(`Erro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`)
     } finally {
-      setIsDeleting(false);
+      setIsDeleting(false)
     }
   };
 
   const handleReaction = async (emoji: string) => {
-    if (!hasMounted) return;
+    if (!hasMounted) return
   
-    const reactionsKey = `episode_${id}_reactions`;
-    const userReactions = localStorage.getItem(reactionsKey) || '';
+    const reactionsKey = `episode_${id}_reactions`
+    const userReactions = localStorage.getItem(reactionsKey) || ''
   
     if (userReactions.includes(emoji)) {
-      alert('Você já reagiu com este emoji!');
-      return;
+      alert('Você já reagiu com este emoji!')
+      return
     }
   
-    // Atualização otimista
     const newReactions = {
       ...reactions,
       [emoji]: (reactions[emoji] || 0) + 1
-    };
-    setReactions(newReactions);
-    setShowEmojis(false);
+    }
+    setReactions(newReactions)
+    setShowEmojis(false)
   
-    // Efeito visual
-    const emojiId = `${Date.now()}-${emoji}`;
-    setFloatingEmojis(prev => [...prev, emojiId]);
+    const emojiId = `${Date.now()}-${emoji}`
+    setFloatingEmojis(prev => [...prev, emojiId])
     setTimeout(() => {
-      setFloatingEmojis(prev => prev.filter(id => id !== emojiId));
-    }, 1000);
+      setFloatingEmojis(prev => prev.filter(id => id !== emojiId))
+    }, 1000)
   
-    // Atualiza localStorage
-    localStorage.setItem(reactionsKey, userReactions + emoji);
+    localStorage.setItem(reactionsKey, userReactions + emoji)
   
     try {
       const response = await fetch("/api/episodes/reactions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ episodeId: id, emoji }),
-      });
+      })
   
       const data = await response.json();
   
       if (response.ok) {
-        // Atualize as reações com a resposta do servidor
-        setReactions(data.reactions);
+        setReactions(data.reactions)
       } else {
-        throw new Error(data.error || "Erro desconhecido");
+        throw new Error(data.error || "Erro desconhecido")
       }
     } catch (error) {
-      console.error("Erro ao registrar reação:", error);
-      setReactions(reactions); // Rollback sem duplicar
+      console.error("Erro ao registrar reação:", error)
+      setReactions(reactions)
     }
-  };
+  }
 
   if (!hasMounted) {
     return (
@@ -335,12 +320,10 @@ const EpisodeCard = ({
           </div>
         </div>
       </div>
-    );
+    )
   }
 
-  const handlePlayClick = () => setShowPlatforms(true);
-
-  
+  const handlePlayClick = () => setShowPlatforms(true)
 
   const platformIcons: PlatformIcon[] = [
     spotifyUrl && {
@@ -363,11 +346,10 @@ const EpisodeCard = ({
       icon: <FaSoundcloud size={28} className="text-orange-600" />,
       link: soundcloudUrl,
     },
-  ].filter(Boolean) as PlatformIcon[];
+  ].filter(Boolean) as PlatformIcon[]
 
   return (
     <div className="relative bg-white border border-pink-100 text-gray-900 rounded-3xl p-6 flex flex-col  gap-6 shadow-md hover:shadow-pink-300/50 hover:shadow-2xl transition-all duration-300 text-sm sm:text-base overflow-hidden">
-      {/* Botões de admin (topo direito) */}
       {isAdmin && (
         <>
           <div className="absolute top-3 right-3 z-20">
@@ -455,8 +437,6 @@ const EpisodeCard = ({
           </div>
         </>
       )}
-
-      {/* Modal de edição */}
       
       <AnimatePresence>
       {isEditing && (
@@ -489,7 +469,6 @@ const EpisodeCard = ({
                 />
               </div>
 
-              {/* Campo Participantes */}
               <div className="col-span-2">
                 <label className="block text-sm font-medium mb-1">Participantes *</label>
                 <input
@@ -502,7 +481,6 @@ const EpisodeCard = ({
                 />
               </div>
 
-              {/* Campo Duração */}
               <div>
                 <label className="block text-sm font-medium mb-1">Duração *</label>
                 <input
@@ -516,7 +494,6 @@ const EpisodeCard = ({
                 <p className="text-xs text-gray-500 mt-1">Formato: HH:MM:SS</p>
               </div>
 
-              {/* Campo Data */}
               <div>
                 <label className="block text-sm font-medium mb-1">Data *</label>
                 <input
@@ -528,7 +505,6 @@ const EpisodeCard = ({
                 />
               </div>
 
-              {/* Campo Tags */}
               <div className="col-span-2">
                 <label className="block text-sm font-medium mb-1">Tags (separadas por vírgula) *</label>
                 <input
@@ -541,7 +517,6 @@ const EpisodeCard = ({
                 />
               </div>
 
-              {/* Campo Imagem URL */}
               <div className="col-span-2">
                 <label className="block text-sm font-medium mb-1">URL da Imagem *</label>
                 <div className="flex gap-2">
@@ -565,12 +540,12 @@ const EpisodeCard = ({
                     accept="image/*"
                     className="hidden"
                     onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
+                      const file = e.target.files?.[0]
+                      if (!file) return
 
-                      const formData = new FormData();
-                      formData.append("file", file);
-                      formData.append("upload_preset", "podcast_uploads");
+                      const formData = new FormData()
+                      formData.append("file", file)
+                      formData.append("upload_preset", "podcast_uploads")
 
                       try {
                         const res = await fetch(
@@ -579,13 +554,13 @@ const EpisodeCard = ({
                             method: "POST",
                             body: formData,
                           }
-                        );
+                        )
 
                         const data = await res.json();
-                        handleFieldChange('imageUrl', data.secure_url);
+                        handleFieldChange('imageUrl', data.secure_url)
                       } catch (error) {
-                        console.error("Erro no upload da imagem:", error);
-                        alert("Erro ao fazer upload da imagem");
+                        console.error("Erro no upload da imagem:", error)
+                        alert("Erro ao fazer upload da imagem")
                       }
                     }}
                   />
@@ -602,7 +577,6 @@ const EpisodeCard = ({
                 )}
               </div>
 
-              {/* Links das plataformas */}
               <div className="col-span-2 border-t pt-4 mt-2">
                 <h4 className="font-medium mb-3">Links das Plataformas</h4>
                 
@@ -694,9 +668,8 @@ const EpisodeCard = ({
       )}
     </AnimatePresence>
 
-      {/* Conteúdo principal - Linha superior (imagem + detalhes) */}
       <div className="flex flex-col sm:flex-row gap-6">
-        {/* Imagem */}
+
         <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden shadow-xl bg-pink-100 flex-shrink-0">
           <Image
             src={imageUrl}
@@ -708,7 +681,6 @@ const EpisodeCard = ({
           />
         </div>
 
-        {/* Detalhes do episódio */}
         <div className="flex-1 flex flex-col">
           <div>
             <h3 className="text-base sm:text-lg font-semibold mb-2 line-clamp-2">{title}</h3>
@@ -723,7 +695,6 @@ const EpisodeCard = ({
             </div>
           </div>
 
-          {/* Tags */}
           <div className="flex flex-wrap gap-2 mt-4">
             {tags.map((tag) => (
               <span key={tag} className="bg-pink-300/40 text-pink-900 text-xs font-medium px-3 py-1 rounded-full">
@@ -734,9 +705,8 @@ const EpisodeCard = ({
         </div>
       </div>
 
-      {/* Linha inferior - Reações e Play (MOBILE) */}
       <div className="sm:hidden flex flex-col gap-3">
-        {/* Botão play mobile */}
+   
         <div className="flex justify-start">
           <AnimatePresence mode="wait">
             {!showPlatforms ? (
@@ -776,7 +746,6 @@ const EpisodeCard = ({
           </AnimatePresence>
         </div>
 
-        {/* Reações mobile */}
         <div className="flex items-center justify-start">
           <button
             onClick={() => setShowEmojis(!showEmojis)}
@@ -820,10 +789,8 @@ const EpisodeCard = ({
         </div>
       </div>
 
-      {/* Linha inferior - Reações e Play (DESKTOP) */}
       <div className="hidden sm:flex items-center mt-auto justify-between">
-        {/* Reações desktop */}
-        <div className="relative flex-1 min-w-0 mr-2"> {/* Adicionei flex-1 e min-w-0 */}
+        <div className="relative flex-1 min-w-0 mr-2">
           <div className="relative flex items-center gap-3">
             <button
               onClick={() => setShowEmojis(!showEmojis)}
@@ -831,12 +798,11 @@ const EpisodeCard = ({
             >
               Reagir
             </button>
-            
-            {/* Emojis flutuantes */}
+ 
             <div className="absolute top-0 left-0">
               <AnimatePresence>
                 {floatingEmojis.map((id) => {
-                  const emoji = id.split('-')[1];
+                  const emoji = id.split('-')[1]
                   return (
                     <motion.div
                       key={id}
@@ -848,12 +814,11 @@ const EpisodeCard = ({
                     >
                       {emoji}
                     </motion.div>
-                  );
+                  )
                 })}
               </AnimatePresence>
             </div>
 
-            {/* Lista de emojis selecionáveis */}
             {showEmojis && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -874,7 +839,6 @@ const EpisodeCard = ({
               </motion.div>
             )}
 
-            {/* Contadores de reações (ajustado para mobile) */}
             <div className="flex gap-1 overflow-x-auto max-w-[120px] sm:max-w-none"> {/* Adicionei overflow e max-width */}
               {Object.entries(reactions || {})
                 .filter(([, count]) => count > 0)
@@ -896,7 +860,6 @@ const EpisodeCard = ({
           </div>
         </div>
 
-        {/* Botão play desktop */}
         <div className="flex items-center gap-3">
           <AnimatePresence mode="wait">
             {!showPlatforms ? (
@@ -939,7 +902,7 @@ const EpisodeCard = ({
 
       
     </div>
-  );
-};
+  )
+}
 
-export default EpisodeCard;
+export default EpisodeCard

@@ -1,9 +1,9 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import NavBar from "@/components/NavBar/NavBar";
-import Image from "next/image";
-import ProtectedRoute from "@/components/ProtectedRoute";
+import { useState, useEffect } from "react"
+import NavBar from "@/components/NavBar/NavBar"
+import Image from "next/image"
+import ProtectedRoute from "@/components/ProtectedRoute"
 import LogoutButton from "@/app/api/LogoutButton"
 
 const AdminUploadPage = () => {
@@ -19,28 +19,26 @@ const AdminUploadPage = () => {
     amazonUrl: "",
     deezerUrl: "",
     soundcloudUrl: "",
-  });
+  })
 
-  const [errorMessage, setErrorMessage] = useState("");
-  const [selectedImageName, setSelectedImageName] = useState("");
+  const [errorMessage, setErrorMessage] = useState("")
+  const [selectedImageName, setSelectedImageName] = useState("")
 
-  const CLOUD_NAME = "dgrap26b6";
-  const UPLOAD_PRESET = "podcast_uploads";
+  const CLOUD_NAME = "dgrap26b6"
+  const UPLOAD_PRESET = "podcast_uploads"
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+    const { name, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: value }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
   
-    // Debug: Mostra os valores atuais no console
-    console.log("Valores do formulário:", form);
+    console.log("Valores do formulário:", form)
   
-    // Verificação simplificada dos campos obrigatórios
     const requiredFieldsValid = (
       (form.title || "").trim() !== "" &&
       (form.participants || "").trim() !== "" &&
@@ -48,9 +46,8 @@ const AdminUploadPage = () => {
       (form.date || "").trim() !== "" &&
       (form.tags || "").trim() !== "" &&
       (form.imageUrl || "").trim() !== ""
-    );
+    )
   
-    // Verificação simplificada dos links
     const atLeastOneLink = (
       form.spotifyUrl.trim() !== "" ||
       form.youtubeUrl.trim() !== "" ||
@@ -83,19 +80,18 @@ const AdminUploadPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
-          tags: form.tags.split(',').map(tag => tag.trim()) // Converte tags para array
+          tags: form.tags.split(',').map(tag => tag.trim()) 
         }),
-      });
+      })
   
       if (!response.ok) {
-        throw new Error(`Erro HTTP: ${response.status}`);
+        throw new Error(`Erro HTTP: ${response.status}`)
       }
   
-      const result = await response.json();
-      console.log("Sucesso:", result);
-      alert("Episódio publicado com sucesso!");
+      const result = await response.json()
+      console.log("Sucesso:", result)
+      alert("Episódio publicado com sucesso!")
       
-      // Limpa o formulário após sucesso
       setForm({
         title: "",
         date: "",
@@ -109,22 +105,22 @@ const AdminUploadPage = () => {
         deezerUrl: "",
         soundcloudUrl: "",
       });
-      setSelectedImageName("");
+      setSelectedImageName("")
   
     } catch (error) {
-      console.error("Erro ao publicar:", error);
-      setErrorMessage("Erro ao publicar episódio. Verifique o console para detalhes.");
+      console.error("Erro ao publicar:", error)
+      setErrorMessage("Erro ao publicar episódio. Verifique o console para detalhes.")
     }
-  };
+  }
 
   useEffect(() => {
     if (errorMessage) {
       const timeout = setTimeout(() => {
-        setErrorMessage("");
-      }, 5000);
-      return () => clearTimeout(timeout);
+        setErrorMessage("")
+      }, 5000)
+      return () => clearTimeout(timeout)
     }
-  }, [errorMessage]);
+  }, [errorMessage])
 
   return (
     <ProtectedRoute>
@@ -231,12 +227,12 @@ const AdminUploadPage = () => {
                       type="file"
                       accept="image/*"
                       onChange={async (e) => {
-                        const file = e.target.files?.[0];
+                        const file = e.target.files?.[0]
                         if (!file) return;
 
-                        const formData = new FormData();
-                        formData.append("file", file);
-                        formData.append("upload_preset", UPLOAD_PRESET);
+                        const formData = new FormData()
+                        formData.append("file", file)
+                        formData.append("upload_preset", UPLOAD_PRESET)
 
                         try {
                           const res = await fetch(
@@ -247,14 +243,14 @@ const AdminUploadPage = () => {
                             }
                           );
 
-                          const data = await res.json();
+                          const data = await res.json()
                           setForm((prev) => ({
                             ...prev,
                             imageUrl: data.secure_url,
                           }));
-                          setSelectedImageName(file.name);
+                          setSelectedImageName(file.name)
                         } catch (error) {
-                          console.error("Erro no upload da imagem:", error);
+                          console.error("Erro no upload da imagem:", error)
                         }
                       }}
                       className="hidden"
@@ -285,8 +281,8 @@ const AdminUploadPage = () => {
                       <button
                         type="button"
                         onClick={() => {
-                          setForm((prev) => ({ ...prev, imageUrl: "" }));
-                          setSelectedImageName("");
+                          setForm((prev) => ({ ...prev, imageUrl: "" }))
+                          setSelectedImageName("")
                         }}
                         className="absolute top-2 right-2 bg-white bg-opacity-80 text-red-600 border border-red-200 px-2 py-1 text-xs rounded-lg hover:bg-red-100"
                       >
@@ -365,7 +361,7 @@ const AdminUploadPage = () => {
       </>
     </ProtectedRoute>
     
-  );
-};
+  )
+}
 
-export default AdminUploadPage;
+export default AdminUploadPage

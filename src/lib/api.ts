@@ -3,8 +3,8 @@ export async function toggleLike(episodeId: string, like: boolean) {
       method: "POST",
       body: JSON.stringify({ episodeId, like }),
       headers: { "Content-Type": "application/json" },
-    });
+    })
   
-    const data = await res.json();
-    return data.likes;
+    const data = await res.json()
+    return data.likes
   }

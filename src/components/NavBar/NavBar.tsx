@@ -22,7 +22,6 @@ const NavBar = () => {
     <nav className="bg-pink-500 shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         
-        {/* Logo */}
         <Link href="/" passHref>
           <div className="flex items-center gap-2 cursor-pointer">
             <Image
@@ -36,7 +35,6 @@ const NavBar = () => {
           </div>
         </Link>
 
-        {/* Desktop Menu */}
         <ul className="hidden sm:flex gap-6 text-sm font- font-bold text-white">
           {links.map(({ href, label }) => (
             <li key={href}>
@@ -52,7 +50,6 @@ const NavBar = () => {
           ))}
         </ul>
 
-        {/* Botão Mobile */}
         <button
           className="sm:hidden text-white"
           onClick={toggleMenu}
@@ -62,7 +59,6 @@ const NavBar = () => {
         </button>
       </div>
 
-      {/* Menu Mobile */}
       <div
         className={`sm:hidden transition-all duration-300 ease-in-out overflow-hidden bg-white text-pink-700 font-medium border-t border-pink-100 ${
           isOpen ? "max-h-64 opacity-100" : "max-h-0 opacity-0"

@@ -27,10 +27,10 @@ export async function POST(request: NextRequest) {
     const token = jwt.sign(
       { 
         email,
-        role: 'admin' // Isso é essencial para identificar o usuário como admin
+        role: 'admin'
       }, 
       JWT_SECRET, 
-      { expiresIn: '1h' }
+      { expiresIn: '1d' }
     )
 
 
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 3600, // 60 segundos (1 minuto)
+      maxAge: 86400,
       path: '/',
     })
 

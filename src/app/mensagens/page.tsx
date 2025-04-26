@@ -17,7 +17,7 @@ interface Mensagem {
   id: number
   autor: string
   conteudo: string
-  data: string // após formatação para string
+  data: string 
   cor: string
 }
 
@@ -25,35 +25,33 @@ export default function MensagensPage() {
   const [mensagens, setMensagens] = useState<Mensagem[]>([])
   const [autor, setAutor] = useState("")
   const [conteudo, setConteudo] = useState("")
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false)
   
 
   useEffect(() => {
     const checkAdminStatus = async () => {
       try {
-        const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1];
+        const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1]
         const res = await fetch('/api/auth/check', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
-        });
-        const { isAdmin } = await res.json();
-        setIsAdmin(isAdmin);
+        })
+        const { isAdmin } = await res.json()
+        setIsAdmin(isAdmin)
       } catch (error) {
-        console.error('Erro na verificação:', error);
-        setIsAdmin(false);
+        console.error('Erro na verificação:', error)
+        setIsAdmin(false)
       }
-    };
-    checkAdminStatus();
-  }, []);
+    }
+    checkAdminStatus()
+  }, [])
 
-  // Buscar mensagens ao carregar a página
   useEffect(() => {
     async function fetchMensagens() {
       const res = await fetch("/api/messages")
       const data = await res.json()
 
-      // Adiciona cor a cada mensagem (baseado no nome)
       const mensagensComCor = data.map((msg:Mensagem) => ({
         ...msg,
         cor: gerarCorAleatoria(msg.autor),
@@ -80,14 +78,14 @@ export default function MensagensPage() {
         body: JSON.stringify({ id }),
       });
 
-      if (!response.ok) throw new Error('Falha ao deletar mensagem');
+      if (!response.ok) throw new Error('Falha ao deletar mensagem')
 
-      setMensagens(prev => prev.filter(msg => msg.id !== id));
+      setMensagens(prev => prev.filter(msg => msg.id !== id))
     } catch (error) {
-      console.error('Erro:', error);
-      alert('Erro ao deletar mensagem');
+      console.error('Erro:', error)
+      alert('Erro ao deletar mensagem')
     }
-  };
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -127,7 +125,6 @@ export default function MensagensPage() {
       <main className="bg-pink-50 min-h-screen">
         <section className="max-w-7xl mx-auto px-6 sm:px-0 py-16 flex flex-col sm:flex-row gap-12">
           
-          {/* Coluna Esquerda - Formulário e Mensagens */}
           <div className="flex-1 space-y-10">
             <div className="text-center sm:text-left max-w-2xl">
               <h1 className="text-4xl font-bold text-gray-600 font-display mb-2">
@@ -138,7 +135,6 @@ export default function MensagensPage() {
               </p>
             </div>
 
-            {/* Formulário */}
             <form
               onSubmit={handleSubmit}
               className="bg-white p-6 rounded-2xl shadow-md space-y-4 border border-pink-100"
@@ -169,7 +165,6 @@ export default function MensagensPage() {
               </div>
             </form>
 
-            {/* Lista de mensagens */}
             <section className="space-y-6">
               {mensagens.map((mensagem) => (
                 <MensagemCard
@@ -186,7 +181,6 @@ export default function MensagensPage() {
             </section>
           </div>
 
-          {/* Coluna Direita - Imagem vertical */}
           <div className="hidden sm:block w-full max-w-sm h-[700px] relative rounded-2xl overflow-hidden shadow-lg transition duration-500 group hover:shadow-2xl hover:scale-[1.03]">
           <Image
             src={HeroImage}

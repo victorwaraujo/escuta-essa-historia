@@ -13,25 +13,25 @@ const EpisodiosPage = () => {
   useEffect(() => {
     const checkAdminStatus = async () => {
       try {
-        const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1];
+        const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1]
         
         const res = await fetch('/api/auth/check', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
-        });
+        })
         
-        if (!res.ok) throw new Error('Falha na verificação');
+        if (!res.ok) throw new Error('Falha na verificação')
         
-        const { isAdmin } = await res.json();
-        setIsAdmin(isAdmin);
+        const { isAdmin } = await res.json()
+        setIsAdmin(isAdmin)
       } catch (error) {
-        console.error('Erro na checagem:', error);
-        setIsAdmin(false);
+        console.error('Erro na checagem:', error)
+        setIsAdmin(false)
       }
-    };
+    }
     
-    checkAdminStatus();
+    checkAdminStatus()
   }, []);
   
 

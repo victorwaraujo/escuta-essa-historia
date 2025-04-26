@@ -7,13 +7,12 @@ const LogoutButton = () => {
 
   const handleLogout = async () => {
     try {
-      // Chama uma API para limpar o cookie
       await fetch('/api/logout', {
         method: 'POST',
         credentials: 'include'
       })
       router.push('/login')
-      router.refresh() // Força atualização do estado
+      router.refresh() 
     } catch (error) {
       console.error('Erro ao fazer logout:', error)
     }

@@ -1,20 +1,18 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
 
-// Função utilitária para formatar a data
 function formatDate(dateString: string): string {
-  const date = new Date(dateString);
+  const date = new Date(dateString)
   return date.toLocaleDateString("pt-BR", {
     day: "numeric",
     month: "long",
     year: "numeric",
-  });
+  })
 }
 
-// POST - Criação de novo episódio
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const body = await req.json()
 
     const {
       title,
@@ -41,7 +39,7 @@ export async function POST(req: Request) {
       data: {
         title,
         date: new Date(`${date}T00:00:00`),
-        tags: tags.join(","), // salva como string
+        tags: tags.join(","), 
         imageUrl,
         duration,
         participants,
@@ -51,25 +49,24 @@ export async function POST(req: Request) {
         deezerUrl,
         soundcloudUrl,
       },
-    });
+    })
 
-    return NextResponse.json(episode);
+    return NextResponse.json(episode)
   } catch (error) {
-    console.error("Erro ao criar episódio:", error);
-    return new NextResponse("Erro interno ao criar episódio.", { status: 500 });
+    console.error("Erro ao criar episódio:", error)
+    return new NextResponse("Erro interno ao criar episódio.", { status: 500 })
   }
 }
 
-// GET - Buscar todos os episódios
 export async function GET(req: Request) {
     try {
-      const { searchParams } = new URL(req.url);
-      const limit = parseInt(searchParams.get("limit") || "0");
+      const { searchParams } = new URL(req.url)
+      const limit = parseInt(searchParams.get("limit") || "0")
   
       const episodes = await prisma.episode.findMany({
         orderBy: { date: "desc" },
         take: limit > 0 ? limit : undefined,
-      });
+      })
   
       const episodesFormatted = episodes.map((ep) => ({
         ...ep,
@@ -79,11 +76,11 @@ export async function GET(req: Request) {
           : [],
         date: formatDate(ep.date.toString()),
         duration: String(ep.duration),
-      }));
+      }))
   
-      return NextResponse.json(episodesFormatted);
+      return NextResponse.json(episodesFormatted)
     } catch (error) {
-      console.error("Erro ao buscar episódios:", error);
-      return new NextResponse("Erro ao buscar episódios", { status: 500 });
+      console.error("Erro ao buscar episódios:", error)
+      return new NextResponse("Erro ao buscar episódios", { status: 500 })
     }
   }
