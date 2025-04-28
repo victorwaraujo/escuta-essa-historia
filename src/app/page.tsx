@@ -172,7 +172,7 @@ const HomePage = () => {
           </p>
           <div className="flex justify-center gap-6 text-3xl mt-4">
             <a
-              href="mailto:escutaessahistoria@ufam.edu.br"
+              href="mailto:escutaessahistoria24@gmail.com"
               target="_blank"
               rel="noopener noreferrer"
               className="text-amber-400 hover:text-gray-800 transition-colors"
