@@ -35,7 +35,6 @@ const NavBar = () => {
             />
           </div>
         </Link>
-
         <ul className="hidden sm:flex gap-6 text-sm font- font-bold text-white">
           {links.map(({ href, label }) => (
             <li key={href}>
